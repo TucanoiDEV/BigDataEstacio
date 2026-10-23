@@ -30,6 +30,8 @@ Usa `DATABASE_URL` do `.env` da raiz (ou `PIPELINE_DATABASE_URL`). Downloads FTP
 
 Depois de importar, publique em **/admin/dados**: um único conjunto por fonte fica publicado; o anterior é arquivado.
 
+**Atualização automática**: `python -m emprego_pipeline atualizar --publicar` (agendado diariamente) importa só quando há competência/trimestre novo e publica se aprovado nos portões de qualidade — detalhes em [DEPLOY.md](DEPLOY.md#tarefas-agendadas). `--forcar` reprocessa mesmo sem novidade.
+
 ## Camadas
 
 ```

@@ -11,7 +11,7 @@ Atualizado em 23/10/2026. Legenda: ✅ pronto e testado · 🟡 pronto, com ress
 | `npm run test:unit` | ✅ 32 testes (TOTP com vetores RFC 6238, CNPJ, senha, redação, fraude, recomendação, permissões, validação, PDFs, consentimento) |
 | `npm run test:integration` (PostgreSQL real) | ✅ 24 testes (cadastro, login, bloqueio, MFA sem reuso, redefinição de senha, IDOR entre empresas, elevação de papéis, convites, fluxo de contratação, busca com entrada maliciosa, exportação/exclusão LGPD, uploads, alertas) |
 | `npm run test:e2e` (Playwright, build de produção) | ✅ 21 testes (fluxo completo pela interface, cabeçalhos, flags do cookie, IDOR, admin, banner de cookies, páginas legais, axe em 6 páginas, mobile sem rolagem horizontal) |
-| `pytest` (pipeline) | ✅ 16 testes |
+| `pytest` (pipeline) | ✅ 22 testes |
 | `npm audit` | ✅ 0 vulnerabilidades conhecidas |
 | `next build` | ✅ 58 rotas (pré-render parcial) |
 | `docker build` + execução | ✅ imagem sobe, `/api/health` ok, roda como usuário sem privilégios |
@@ -44,6 +44,7 @@ Atualizado em 23/10/2026. Legenda: ✅ pronto e testado · 🟡 pronto, com ress
 
 ### Fase 4 — Observatório
 - ✅ Pipeline Novo CAGED (coleta autorizada, validação, curadoria Parquet, agregação, carga, publicação), IBGE (territórios, CNAE, malha, PNAD).
+- ✅ Atualização automática agendada (`atualizar --publicar`): detecta competência/trimestre novo, reimporta a janela de 12 meses e publica só se aprovado nos portões de qualidade; testada sem novidade (no-op) e com reprocessamento forçado (publicação automática + auditoria). Tarefas registradas no Agendador do Windows desta máquina.
 - ✅ Painel com admissões, desligamentos, saldo, evolução mensal, mapa por UF, ranking de municípios, setores, ocupações, salário mediano, desocupação; fonte/metodologia em cada bloco; estado vazio sem dados publicados.
 - ⏳ RAIS: módulo estruturado, **não validado** com arquivo real e não exibido.
 - ⏳ Reconciliação automática com os totais publicados pelo MTE; histórico 2020–2025.

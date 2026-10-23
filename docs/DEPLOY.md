@@ -31,14 +31,34 @@ Para testar a imagem com o Compose local: `docker compose --profile app up --bui
 3. Subir a nova versão; verificar `/api/health`.
 4. Criar o primeiro administrador com `npm run admin:create` (dentro do contêiner) e configurar o MFA no primeiro acesso.
 
-## Tarefas agendadas (cron)
+## Tarefas agendadas
 
-| Tarefa | Frequência sugerida | Comando |
+As vagas não precisam de agendamento: as páginas leem o banco a cada acesso. As rotinas abaixo mantêm o restante atualizado.
+
+| Tarefa | Frequência | Comando |
 |---|---|---|
+| Dados oficiais (Novo CAGED + PNAD) | Diária (06:00) | `python -m emprego_pipeline atualizar --publicar` (em `data-pipeline/`) |
 | Alertas de vagas | A cada hora | `npm run jobs:alerts` |
-| Limpeza de sessões/tokens/limites | Diária | `npm run jobs:maintenance` |
-| Importação Novo CAGED | Mensal, após a divulgação do MTE | `python -m emprego_pipeline caged --de <AAAAMM> --ate <AAAAMM>` + publicação no admin |
-| PNAD Contínua | Trimestral | `python -m emprego_pipeline pnad` |
+| Limpeza de sessões/tokens/limites | Diária (03:30) | `npm run jobs:maintenance` |
+
+`atualizar` verifica no FTP do MTE se há competência nova do Novo CAGED (e no SIDRA, trimestre novo da PNAD). Só importa quando há novidade, reprocessa a janela dos últimos 12 meses e **publica automaticamente** apenas se os portões de qualidade forem aprovados: rejeição ≤ 0,1%, todas as competências presentes, admissões no Brasil ≥ 300 mil por mês (detecta arquivo truncado), saldo consistente e 27 UFs; para a PNAD, Brasil + 27 UFs e taxas plausíveis. Se algum portão falhar, o conjunto fica “em revisão” em `/admin/dados` e o motivo vai para o log. Cada publicação automática gera `pipeline.dataset_auto_published` na auditoria; são mantidos os 3 conjuntos arquivados mais recentes por fonte. Sem `--publicar`, tudo fica para publicação manual.
+
+### Windows (máquina local)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\agendamento\registrar-tarefas.ps1   # registra as 3 tarefas
+powershell -ExecutionPolicy Bypass -File scripts\agendamento\remover-tarefas.ps1     # remove
+```
+
+As tarefas ficam em `\EmpregoAgora\` no Agendador de Tarefas, rodam com o usuário conectado, sobem o Docker/PostgreSQL se necessário e executam assim que possível caso o computador esteja desligado no horário. Logs diários em `data-pipeline/data/logs/<tarefa>-AAAA-MM-DD.log`.
+
+### Linux (servidor)
+
+```cron
+0 6 * * *  cd /srv/emprego-agora/data-pipeline && .venv/bin/python -m emprego_pipeline atualizar --publicar >> /var/log/emprego/dados.log 2>&1
+0 * * * *  cd /srv/emprego-agora && npm run --silent jobs:alerts >> /var/log/emprego/alertas.log 2>&1
+30 3 * * * cd /srv/emprego-agora && npm run --silent jobs:maintenance >> /var/log/emprego/manutencao.log 2>&1
+```
 
 ## Backup e restauração
 

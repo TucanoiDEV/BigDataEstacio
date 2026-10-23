@@ -72,6 +72,59 @@ def create_dataset(
     return ds_id
 
 
+def latest_dataset(conn: psycopg.Connection, source: str) -> tuple[str, date, str] | None:
+    """Conjunto mais recente (em revisão ou publicado) de uma fonte: (id, referenceEnd, status)."""
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT d.id, d."referenceEnd", d.status FROM "StatDataset" d JOIN "DataImport" i ON i.id = d."importId" '
+            "WHERE d.source = %s AND d.status IN ('STAGED','PUBLISHED') AND i.status = 'SUCCEEDED' "
+            'ORDER BY d."referenceEnd" DESC, d."createdAt" DESC LIMIT 1',
+            (source,),
+        )
+        row = cur.fetchone()
+    return (row[0], row[1], row[2]) if row else None
+
+
+def latest_published_indicator_period(conn: psycopg.Connection, indicator: str) -> str | None:
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT max(i."periodCode") FROM "StatIndicator" i JOIN "StatDataset" d ON d.id = i."datasetId" '
+            "WHERE i.indicator = %s AND d.status IN ('STAGED','PUBLISHED')",
+            (indicator,),
+        )
+        row = cur.fetchone()
+    return row[0] if row else None
+
+
+def publish_dataset(conn: psycopg.Connection, dataset_id: str, source: str, reason: dict) -> None:
+    """Publica o conjunto (arquivando o anterior da mesma fonte) e registra na auditoria."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE \"StatDataset\" SET status='ARCHIVED' WHERE source=%s AND status='PUBLISHED' AND id <> %s",
+            (source, dataset_id),
+        )
+        cur.execute("UPDATE \"StatDataset\" SET status='PUBLISHED', \"publishedAt\"=now() WHERE id=%s", (dataset_id,))
+        cur.execute(
+            'INSERT INTO "AuditLog" (id, action, "targetType", "targetId", metadata) VALUES (%s, %s, %s, %s, %s)',
+            (new_id(), "pipeline.dataset_auto_published", "StatDataset", dataset_id, json.dumps(reason)),
+        )
+    conn.commit()
+
+
+def prune_archived(conn: psycopg.Connection, source: str, keep: int = 3) -> int:
+    """Remove conjuntos arquivados antigos (mantém os `keep` mais recentes por fonte)."""
+    with conn.cursor() as cur:
+        cur.execute(
+            'DELETE FROM "StatDataset" WHERE id IN ('
+            "  SELECT id FROM \"StatDataset\" WHERE source = %s AND status = 'ARCHIVED' "
+            '  ORDER BY "createdAt" DESC OFFSET %s)',
+            (source, keep),
+        )
+        removed = cur.rowcount
+    conn.commit()
+    return removed
+
+
 def upsert_territories(conn: psycopg.Connection, items: Iterable) -> int:
     rows = [(t.code, t.level, t.name, t.uf_code, t.uf_abbr, t.region_name) for t in items]
     with conn.cursor() as cur:

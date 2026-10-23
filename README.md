@@ -53,7 +53,17 @@ python -m venv .venv && .venv/Scripts/pip install -e ".[dev]"   # Linux/macOS: .
 .venv/Scripts/python -m emprego_pipeline caged --de 202509 --ate 202608   # ~650 MB de download
 ```
 
-Cada importação entra como **“em revisão”**; publique em **/admin/dados**. Detalhes em [docs/FONTES-DE-DADOS.md](docs/FONTES-DE-DADOS.md).
+Importações manuais entram como **“em revisão”**; publique em **/admin/dados**. A rotina agendada `atualizar --publicar` importa e publica sozinha quando há dados novos e eles passam nos portões de qualidade. Detalhes em [docs/FONTES-DE-DADOS.md](docs/FONTES-DE-DADOS.md).
+
+### Atualizações automáticas
+
+As vagas aparecem em tempo real (sem cache). Para os dados oficiais, os alertas por e-mail e a limpeza diária, registre as tarefas agendadas (Windows):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\agendamento\registrar-tarefas.ps1
+```
+
+Frequências, portões de qualidade e equivalente em cron: [docs/DEPLOY.md](docs/DEPLOY.md#tarefas-agendadas).
 
 ## Comandos
 
