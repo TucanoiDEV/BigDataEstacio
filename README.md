@@ -4,6 +4,8 @@ Plataforma brasileira de vagas de emprego com **observatório do mercado de trab
 
 > **Situação:** produto funcional, testado de ponta a ponta em ambiente local. **Não** está pronto para produção sem os itens listados em [docs/STATUS.md](docs/STATUS.md) (revisão jurídica, infraestrutura, antivírus em produção, pentest). Veja o que está pronto, demonstrativo e pendente nesse documento.
 
+> **Quer só abrir o site e testar?** Veja [COMO-ACESSAR.md](COMO-ACESSAR.md): passo a passo e contas de teste locais (candidato, recrutador e administrador).
+
 ## Stack
 
 | Camada | Tecnologia |
