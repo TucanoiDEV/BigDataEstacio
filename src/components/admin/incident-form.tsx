@@ -37,18 +37,18 @@ export function IncidentForm({ defaults }: { defaults?: Values }) {
       <FormRootError form={form} />
       <TextField form={form} name="title" label="Título" required />
       <TextAreaField form={form} name="description" label="O que aconteceu" rows={4} required />
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <SelectField form={form} name="severity" label="Severidade" options={[{ value: "LOW", label: "Baixa" }, { value: "MEDIUM", label: "Média" }, { value: "HIGH", label: "Alta" }, { value: "CRITICAL", label: "Crítica" }]} />
         <SelectField form={form} name="status" label="Status" options={[{ value: "OPEN", label: "Aberto" }, { value: "CONTAINED", label: "Contido" }, { value: "RESOLVED", label: "Resolvido" }]} />
         <TextField form={form} name="detectedAt" label="Detectado em" type="datetime-local" required />
       </div>
       <CheckboxField form={form} name="personalDataAffected" label="Envolve dados pessoais" />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField form={form} name="dataCategories" label="Categorias de dados afetadas (separadas por vírgula)" placeholder="e-mail, currículo, telefone" />
         <TextField form={form} name="estimatedSubjects" label="Titulares afetados (estimativa)" type="number" min={0} />
       </div>
       <TextAreaField form={form} name="riskAssessment" label="Avaliação de risco ou dano relevante aos titulares" rows={3} />
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <SelectField form={form} name="anpdNotificationRequired" label="Comunicação à ANPD" options={[{ value: "undetermined", label: "A avaliar" }, { value: "yes", label: "Necessária" }, { value: "no", label: "Não necessária" }]} />
         <TextField form={form} name="anpdNotifiedAt" label="ANPD comunicada em" type="datetime-local" />
         <TextField form={form} name="subjectsNotifiedAt" label="Titulares comunicados em" type="datetime-local" />

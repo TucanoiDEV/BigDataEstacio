@@ -151,7 +151,7 @@ async function CagedSection({ datasetId, territory }: { datasetId: string; terri
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((k) => (
           <div key={k.label} className="rounded-2xl border bg-card p-5">
             <p className="text-sm text-muted-foreground">{k.label}</p>
@@ -166,12 +166,12 @@ async function CagedSection({ datasetId, territory }: { datasetId: string; terri
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <FlowsChart data={series} territory={territory.name} />
         <BalanceChart data={series} territory={territory.name} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         {map ? <UfMap shapes={map.shapes} viewBox={map.viewBox} bins={map.bins} selected={territory.ufCode} period={periodLabel} /> : null}
         {ranking ? (
           <div className="rounded-2xl border bg-card p-5">
@@ -214,7 +214,7 @@ async function CagedSection({ datasetId, territory }: { datasetId: string; terri
       </div>
 
       {!isMun && (
-        <div className="grid gap-6 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <DivergingList title="Saldo por setor de atividade (seção CNAE 2.0)" subtitle={`Acumulado ${periodLabel}`} items={sectors} />
           <DivergingList title="Saldo por grande grupo de ocupação (CBO 2002)" subtitle={`Acumulado ${periodLabel}`} items={occupations} />
         </div>
@@ -272,8 +272,8 @@ async function PnadSection({ territoryName, ufCode }: { territoryName: string | 
 function DashboardSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}</div>
-      <div className="grid gap-6 xl:grid-cols-2"><SectionSkeleton rows={8} /><SectionSkeleton rows={8} /></div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}</div>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2"><SectionSkeleton rows={8} /><SectionSkeleton rows={8} /></div>
     </div>
   );
 }

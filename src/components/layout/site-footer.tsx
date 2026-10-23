@@ -42,7 +42,7 @@ const GROUPS = [
 export function SiteFooter() {
   return (
     <footer className="mt-auto bg-petroleum text-petroleum-foreground">
-      <div className="container-page grid gap-10 py-12 md:grid-cols-[1.2fr_repeat(4,1fr)]">
+      <div className="container-page grid grid-cols-1 gap-10 py-12 md:grid-cols-[1.2fr_repeat(4,1fr)]">
         <div className="space-y-3">
           <Logo inverted />
           <p className="max-w-xs text-sm text-petroleum-foreground/80">

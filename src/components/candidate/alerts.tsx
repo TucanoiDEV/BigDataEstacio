@@ -30,7 +30,7 @@ export function AlertForm({ filters, summary }: { filters: AlertFilters; summary
         Filtros: <span className="font-medium text-foreground">{summary}</span>. Para mudar os filtros, faça uma nova busca em “Explorar vagas”.
       </p>
       <FormRootError form={form} />
-      <div className="grid gap-4 sm:grid-cols-[1fr_12rem_auto] sm:items-end">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_12rem_auto] sm:items-end">
         <TextField form={form} name="name" label="Nome do alerta" required />
         <SelectField form={form} name="frequency" label="Frequência" options={[{ value: "DAILY", label: "Diário" }, { value: "WEEKLY", label: "Semanal" }]} />
         <SubmitButton pending={pending} className="h-9">Criar alerta</SubmitButton>

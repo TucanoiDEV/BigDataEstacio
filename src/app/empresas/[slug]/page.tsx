@@ -66,7 +66,7 @@ async function Content({ params }: { params: PageProps<"/empresas/[slug]">["para
         {jobs.length === 0 ? (
           <EmptyState title="Nenhuma vaga aberta no momento" description="Volte em breve ou crie um alerta para esta empresa na busca de vagas." />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{jobs.map((j) => <JobCard key={j.id} job={j} now={now} />)}</div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">{jobs.map((j) => <JobCard key={j.id} job={j} now={now} />)}</div>
         )}
       </section>
     </>

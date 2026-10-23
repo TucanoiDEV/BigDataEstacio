@@ -40,7 +40,7 @@ async function Detail({ params }: { params: PageProps<"/empresa/[orgId]/candidat
   const next = companyNextStatuses(app.status).filter((x) => x !== "WITHDRAWN");
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_22rem]">
       <div className="space-y-6">
         <div>
           <p className="text-sm text-muted-foreground">

@@ -32,7 +32,7 @@ export default function HomePage() {
   return (
     <>
       <section className="hero-pattern text-white">
-        <div className="container-page grid gap-10 py-14 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:py-20">
+        <div className="container-page grid grid-cols-1 gap-10 py-14 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:py-20">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-emerald-200">
               <BadgeCheck className="size-3.5" aria-hidden /> Vagas de empresas verificadas
@@ -43,7 +43,7 @@ export default function HomePage() {
             <p className="mt-4 max-w-xl text-lg text-petroleum-foreground/85">
               Encontre vagas, acompanhe cada etapa das suas candidaturas e entenda o mercado de trabalho com dados oficiais.
             </p>
-            <form action="/vagas" method="get" role="search" className="mt-8 grid gap-2 rounded-2xl bg-white/10 p-2 backdrop-blur sm:grid-cols-[1.2fr_1fr_1.15fr_auto]">
+            <form action="/vagas" method="get" role="search" className="mt-8 grid grid-cols-1 gap-2 rounded-2xl bg-white/10 p-2 backdrop-blur sm:grid-cols-[1.2fr_1fr_1.15fr_auto]">
               <div className="relative">
                 <label htmlFor="home-q" className="sr-only">Cargo ou empresa</label>
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
@@ -110,7 +110,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container-page grid gap-8 py-14 lg:grid-cols-2 lg:items-center" aria-labelledby="observatorio">
+      <section className="container-page grid grid-cols-1 gap-8 py-14 lg:grid-cols-2 lg:items-center" aria-labelledby="observatorio">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">Observatório do trabalho</p>
           <h2 id="observatorio" className="mt-2 text-3xl font-bold text-petroleum">Decida com dados oficiais, não com achismo</h2>
@@ -128,7 +128,7 @@ export default function HomePage() {
       </section>
 
       <section className="bg-secondary/60" aria-labelledby="empresas">
-        <div className="container-page grid gap-8 py-14 lg:grid-cols-[1fr_1.4fr] lg:items-center">
+        <div className="container-page grid grid-cols-1 gap-8 py-14 lg:grid-cols-[1fr_1.4fr] lg:items-center">
           <div>
             <h2 id="empresas" className="text-3xl font-bold text-petroleum">Para empresas que contratam com responsabilidade</h2>
             <p className="mt-3 text-muted-foreground">Publique vagas, organize candidaturas por etapa e trabalhe em equipe com permissões por papel.</p>
@@ -136,7 +136,7 @@ export default function HomePage() {
               <Building2 className="size-4" aria-hidden /> Cadastrar minha empresa
             </Link>
           </div>
-          <ul className="grid gap-4 sm:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[
               { icon: BadgeCheck, title: "Verificação", text: "CNPJ e domínio conferidos antes da primeira vaga." },
               { icon: KanbanSquare, title: "Etapas claras", text: "Enviada, em análise, entrevista e decisão — com o candidato sempre informado." },
@@ -221,7 +221,7 @@ async function RecentJobs() {
     );
   }
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {jobs.map((j) => <JobCard key={j.id} job={j} now={now} />)}
     </div>
   );
@@ -232,7 +232,7 @@ async function TrendingAreas() {
   const trending = await trendingSectors(8);
   const items = trending.length ? trending : SECTORS.slice(0, 8).map((s) => ({ sector: s, count: null as number | null }));
   return (
-    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((t) => (
         <li key={t.sector}>
           <Link href={`/vagas?setor=${encodeURIComponent(t.sector)}`} className="flex items-center justify-between rounded-xl border bg-background px-4 py-3 text-sm hover:border-primary/40 hover:bg-secondary/50">

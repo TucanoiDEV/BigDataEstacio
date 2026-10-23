@@ -31,7 +31,7 @@ export function PrivacyRequestForm({ name = "", email = "" }: { name?: string; e
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <FormRootError form={form} />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField form={form} name="requesterName" label="Nome" autoComplete="name" required />
         <TextField form={form} name="requesterEmail" label="E-mail para resposta" type="email" autoComplete="email" required />
       </div>

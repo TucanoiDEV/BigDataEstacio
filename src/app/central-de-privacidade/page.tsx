@@ -24,7 +24,7 @@ export default function PrivacyCenterPage() {
       />
       <section aria-labelledby="autoatendimento">
         <h2 id="autoatendimento" className="mb-3 text-lg font-semibold text-petroleum">Autoatendimento (requer login)</h2>
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {SELF_SERVICE.map((s) => (
             <li key={s.title}>
               <Link href={s.href} className="flex h-full gap-3 rounded-xl border bg-card p-4 hover:border-primary/40">

@@ -92,7 +92,7 @@ async function Dashboard({ params, searchParams }: { params: PageProps<"/empresa
         <Link href={`/empresa/${orgId}/vagas/nova`} className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Publicar vaga</Link>
       } />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {kpis.map((k) => (
           <div key={k.label} className="rounded-xl border bg-card p-4">
             <div className="flex items-center justify-between gap-2">
@@ -104,7 +104,7 @@ async function Dashboard({ params, searchParams }: { params: PageProps<"/empresa
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="rounded-xl border bg-card p-5" aria-labelledby="semanal">
           <h2 id="semanal" className="font-semibold text-petroleum">Candidaturas por semana</h2>
           <p className="mb-3 text-xs text-muted-foreground">Últimas 8 semanas</p>

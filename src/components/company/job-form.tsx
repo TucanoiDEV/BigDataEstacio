@@ -46,13 +46,13 @@ export function JobForm({ orgId, jobId, defaults, orgVerified }: { orgId: string
       <section className="space-y-4 rounded-2xl border bg-card p-5 sm:p-6">
         <h2 className="font-semibold text-petroleum">Informações da vaga</h2>
         <TextField form={form} name={"title" as never} label="Título" required placeholder="Ex.: Analista de Suporte Júnior" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <SelectField form={form} name={"sector" as never} label="Setor" options={SECTORS.map((s) => ({ value: s, label: s }))} required />
           <SelectField form={form} name={"seniority" as never} label="Senioridade" options={opts(SENIORITY_LABEL)} required />
           <SelectField form={form} name={"contractType" as never} label="Contratação" options={opts(CONTRACT_TYPE_LABEL)} required />
           <SelectField form={form} name={"workModel" as never} label="Modalidade" options={opts(WORK_MODEL_LABEL)} required />
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <TextField form={form} name={"city" as never} label="Cidade" required={workModel !== "REMOTE"} hint={workModel === "REMOTE" ? "Opcional para vagas remotas." : undefined} />
           <SelectField form={form} name={"state" as never} label="UF" options={UFS.map((u) => ({ value: u.code, label: `${u.code} — ${u.name}` }))} allowEmpty />
           <TextField form={form} name={"positions" as never} label="Nº de posições" type="number" min={1} max={1000} />
@@ -61,7 +61,7 @@ export function JobForm({ orgId, jobId, defaults, orgVerified }: { orgId: string
 
       <section className="space-y-4 rounded-2xl border bg-card p-5 sm:p-6">
         <h2 className="font-semibold text-petroleum">Remuneração</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TextField form={form} name={"salaryMin" as never} label="Salário mínimo (R$/mês)" type="number" min={0} step={100} />
           <TextField form={form} name={"salaryMax" as never} label="Salário máximo (R$/mês)" type="number" min={0} step={100} />
         </div>

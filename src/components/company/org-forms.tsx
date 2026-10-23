@@ -18,7 +18,7 @@ const ufOpts = UFS.map((u) => ({ value: u.code, label: `${u.code} — ${u.name}`
 function ProfileFields({ form }: { form: Parameters<typeof TextField>[0]["form"] }) {
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField form={form} name="tradeName" label="Nome fantasia" required />
         <TextField form={form} name="contactEmail" label="E-mail de contato corporativo" type="email" required hint="Preferencialmente no domínio do site da empresa." />
         <TextField form={form} name="website" label="Site" type="url" placeholder="https://" />
@@ -42,7 +42,7 @@ export function CreateOrgForm({ contactEmail }: { contactEmail: string }) {
   return (
     <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border bg-card p-5 sm:p-6" noValidate>
       <FormRootError form={form} />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField form={form} name="legalName" label="Razão social" required />
         <TextField form={form} name="cnpj" label="CNPJ" inputMode="numeric" placeholder="00.000.000/0000-00" required hint="Dado da pessoa jurídica, usado apenas para verificação." />
       </div>

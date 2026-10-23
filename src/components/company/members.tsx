@@ -24,7 +24,7 @@ export function InviteForm({ orgId, roles }: { orgId: string; roles: { value: st
     onSuccess: () => form.reset({ orgId, email: "", role: "RECRUITER" }),
   });
   return (
-    <form onSubmit={onSubmit} className="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end" noValidate>
+    <form onSubmit={onSubmit} className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end" noValidate>
       <div className="sm:col-span-3"><FormRootError form={form} /></div>
       <TextField form={form} name="email" label="E-mail" type="email" required />
       <SelectField form={form} name="role" label="Papel" options={roles} required />

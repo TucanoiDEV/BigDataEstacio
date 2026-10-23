@@ -37,7 +37,7 @@ async function List() {
     return <EmptyState icon={Building2} title="Você ainda não participa de nenhuma empresa" description="Cadastre sua empresa para publicar vagas ou peça um convite a quem já administra o perfil dela." action={{ href: "/empresa/nova", label: "Cadastrar empresa" }} />;
   }
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {memberships.map(({ role, org }) => (
         <li key={org.id}>
           <Link href={`/empresa/${org.id}`} className="flex items-center gap-3 rounded-xl border bg-card p-5 hover:border-primary/40 hover:shadow-sm">

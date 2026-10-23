@@ -39,7 +39,7 @@ async function List() {
   });
   if (!orgs.length) return <EmptyState icon={Building2} title="Nenhuma empresa verificada ainda" description="Assim que empresas forem verificadas, elas aparecerão aqui." />;
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {orgs.map((o) => (
         <li key={o.id}>
           <Link href={`/empresas/${o.slug}`} className="flex h-full items-center gap-4 rounded-xl border bg-card p-5 hover:border-primary/40 hover:shadow-sm">

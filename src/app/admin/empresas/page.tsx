@@ -67,7 +67,7 @@ async function List({ searchParams }: { searchParams: PageProps<"/admin/empresas
                   </div>
                   <OrgStatusBadge status={o.verificationStatus} />
                 </div>
-                <dl className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+                <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
                   <div><dt className="inline text-muted-foreground">Contato: </dt><dd className="inline">{o.contactEmail}</dd></div>
                   <div>
                     <dt className="inline text-muted-foreground">Site: </dt>

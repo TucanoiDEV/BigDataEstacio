@@ -59,7 +59,7 @@ export function ErrorState(props: { title?: string; description?: string; childr
 
 export function CardListSkeleton({ count = 6, className }: { count?: number; className?: string }) {
   return (
-    <div className={cn("grid gap-4 sm:grid-cols-2 xl:grid-cols-3", className)} aria-busy="true" aria-label="Carregando">
+    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3", className)} aria-busy="true" aria-label="Carregando">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="space-y-3 rounded-xl border bg-card p-5">
           <div className="flex gap-3">

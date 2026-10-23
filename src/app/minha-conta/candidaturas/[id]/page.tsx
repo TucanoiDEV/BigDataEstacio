@@ -61,7 +61,7 @@ async function Detail({ params, searchParams }: { params: PageProps<"/minha-cont
 
       <section className="rounded-2xl border bg-card p-6" aria-labelledby="etapas">
         <h2 id="etapas" className="mb-5 font-semibold text-petroleum">Etapas</h2>
-        <ol className="grid gap-4 sm:grid-cols-4">
+        <ol className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           {PIPELINE_STEPS.map((step) => {
             const done = reached.has(step);
             const current = app.status === step;

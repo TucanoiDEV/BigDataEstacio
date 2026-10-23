@@ -80,7 +80,7 @@ async function Overview() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="Painel do candidato" title={`Olá, ${user.name.split(" ")[0]}!`} description="Acompanhe suas candidaturas e descubra vagas alinhadas ao seu perfil." />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="rounded-xl border bg-card p-5">
             <div className="flex items-center justify-between">
@@ -91,7 +91,7 @@ async function Overview() {
           </div>
         ))}
       </div>
-      <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_20rem]">
         <section className="rounded-xl border bg-card p-5" aria-labelledby="recentes">
           <div className="mb-3 flex items-center justify-between">
             <h2 id="recentes" className="font-semibold text-petroleum">Candidaturas recentes</h2>
@@ -150,7 +150,7 @@ async function Recommendations() {
     );
   }
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {recs.map(({ job, rec }) => (
         <JobCard key={job.id} job={job} now={now} reasons={rec.reasons} />
       ))}

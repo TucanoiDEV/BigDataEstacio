@@ -16,7 +16,7 @@ export function ResumeUpload() {
   return (
     <form
       ref={formRef}
-      className="grid gap-4 rounded-2xl border bg-card p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+      className="grid grid-cols-1 gap-4 rounded-2xl border bg-card p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
       onSubmit={(e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);

@@ -26,7 +26,7 @@ export function ProfileForm({ defaults }: { defaults: ProfileInput }) {
       <FormRootError form={form} />
       <section className="space-y-4 rounded-2xl border bg-card p-5 sm:p-6">
         <h2 className="font-semibold text-petroleum">Dados básicos</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TextField form={form} name="name" label="Nome" autoComplete="name" required />
           <TextField form={form} name="headline" label="Título profissional" placeholder="Ex.: Analista de dados" />
           <TextField form={form} name="city" label="Cidade" autoComplete="address-level2" />
@@ -54,7 +54,7 @@ export function ProfileForm({ defaults }: { defaults: ProfileInput }) {
           <h2 className="font-semibold text-petroleum">Preferências profissionais</h2>
           <p className="text-sm text-muted-foreground">Usadas apenas para ordenar recomendações para você. Você pode alterá-las a qualquer momento.</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TextField form={form} name="desiredTitle" label="Cargo desejado" placeholder="Ex.: Desenvolvedor(a) front-end" />
           <SelectField form={form} name="desiredSeniority" label="Senioridade buscada" options={opts(SENIORITY_LABEL)} allowEmpty />
           <TextField form={form} name="desiredSalaryMin" label="Pretensão salarial mínima (R$/mês)" type="number" min={0} step={100} />

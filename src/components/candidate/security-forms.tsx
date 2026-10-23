@@ -82,7 +82,7 @@ export function MfaManager({ enabled, recoveryLeft }: { enabled: boolean; recove
   }
 
   return (
-    <div className="grid gap-5 sm:grid-cols-[auto_1fr]">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-[auto_1fr]">
       <Image src={setup.qrDataUrl} alt="QR code para configurar o aplicativo autenticador" width={200} height={200} unoptimized className="rounded-lg border bg-white p-2" />
       <div className="space-y-3">
         <ol className="list-decimal space-y-1 pl-5 text-sm">

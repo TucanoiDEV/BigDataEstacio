@@ -44,7 +44,7 @@ async function Counters() {
     { label: "Vagas publicadas", value: activeJobs, href: "/admin/vagas", urgent: false },
   ];
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((c) => (
         <Link key={c.label} href={c.href} className={`rounded-xl border bg-card p-5 hover:shadow-sm ${c.urgent ? "border-amber-300" : ""}`}>
           <p className="text-sm text-muted-foreground">{c.label}</p>

@@ -138,7 +138,7 @@ async function JobContent({ params }: { params: PageProps<"/vagas/[id]">["params
               </div>
             </div>
           </div>
-          <dl className="mt-6 grid gap-4 border-t pt-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          <dl className="mt-6 grid grid-cols-1 gap-4 border-t pt-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
             <div className="flex gap-2"><Wallet className="size-4 text-primary" aria-hidden /><div><dt className="text-muted-foreground">Salário</dt><dd className="font-semibold">{salary ? `${salary}/mês` : "A combinar"}</dd></div></div>
             <div className="flex gap-2"><MapPin className="size-4 text-primary" aria-hidden /><div><dt className="text-muted-foreground">Local</dt><dd className="font-semibold">{location || "Não informado"}</dd></div></div>
             <div className="flex gap-2"><Users className="size-4 text-primary" aria-hidden /><div><dt className="text-muted-foreground">Posições</dt><dd className="font-semibold">{job.positions}</dd></div></div>
