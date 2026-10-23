@@ -1,0 +1,876 @@
+// Emprego Agora — modelo de dados
+// Convenções:
+// - IDs: cuid (não sequenciais, dificultam enumeração).
+// - Tokens e sessões são armazenados apenas como hash SHA-256.
+// - Dados estatísticos oficiais ficam em tabelas próprias (prefixo Stat*)
+//   e NUNCA se misturam com vagas anunciadas na plataforma.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ----------------------------------------------------------------------------
+// Identidade, sessões e autenticação
+// ----------------------------------------------------------------------------
+
+enum PlatformRole {
+  USER
+  PLATFORM_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model User {
+  id               String       @id @default(cuid())
+  email            String       @unique // sempre minúsculo
+  emailVerifiedAt  DateTime?
+  passwordHash     String
+  name             String
+  platformRole     PlatformRole @default(USER)
+  status           UserStatus   @default(ACTIVE)
+  // Segredo TOTP cifrado (AES-256-GCM). Nulo enquanto MFA não ativado.
+  mfaSecretEnc     String?
+  mfaEnabledAt     DateTime?
+  mfaLastCounter   Int? // impede reutilização do mesmo código TOTP
+  failedLoginCount Int          @default(0)
+  lockedUntil      DateTime?
+  passwordChangedAt DateTime?
+  termsVersion     String?
+  termsAcceptedAt  DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  deletedAt        DateTime?
+
+  sessions          Session[]
+  tokens            VerificationToken[]
+  recoveryCodes     MfaRecoveryCode[]
+  candidateProfile  CandidateProfile?
+  memberships       OrgMembership[]
+  applications      Application[]        @relation("CandidateApplications")
+  statusChanges     ApplicationStatusChange[]
+  savedJobs         SavedJob[]
+  alerts            JobAlert[]
+  notifications     Notification[]
+  commPreference    CommunicationPreference?
+  consents          ConsentRecord[]
+  privacyRequests   PrivacyRequest[]     @relation("PrivacyRequester")
+  handledPrivacy    PrivacyRequest[]     @relation("PrivacyHandler")
+  reports           Report[]             @relation("Reporter")
+  handledReports    Report[]             @relation("ReportHandler")
+  auditLogs         AuditLog[]
+  files             StoredFile[]
+  jobsCreated       Job[]
+  invitationsSent   OrgInvitation[]
+  incidentsCreated  SecurityIncident[]
+  orgsVerified      Organization[]       @relation("OrgVerifier")
+
+  @@index([status])
+}
+
+model Session {
+  // SHA-256 do token aleatório entregue no cookie. O token em si nunca é salvo.
+  id            String    @id
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime
+  lastSeenAt    DateTime  @default(now())
+  mfaVerifiedAt DateTime?
+  ipHash        String?
+  userAgent     String?
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+enum TokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model VerificationToken {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   TokenPurpose
+  tokenHash String       @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime     @default(now())
+
+  @@index([userId, purpose])
+}
+
+model MfaRecoveryCode {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model RateLimitBucket {
+  key         String   @id
+  count       Int
+  windowStart DateTime
+  expiresAt   DateTime
+
+  @@index([expiresAt])
+}
+
+// ----------------------------------------------------------------------------
+// Perfil do candidato
+// ----------------------------------------------------------------------------
+
+enum ProfileVisibility {
+  PRIVATE // visível só para o próprio candidato e, por candidatura, à empresa
+  VERIFIED_COMPANIES // recrutadores de empresas verificadas podem visualizar
+}
+
+enum WorkModel {
+  REMOTE
+  HYBRID
+  ON_SITE
+}
+
+enum ContractType {
+  CLT
+  PJ
+  INTERNSHIP
+  TEMPORARY
+  APPRENTICE
+  FREELANCE
+}
+
+enum Seniority {
+  INTERN
+  JUNIOR
+  MID
+  SENIOR
+  SPECIALIST
+  MANAGER
+  DIRECTOR
+}
+
+model CandidateProfile {
+  userId                 String            @id
+  user                   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline               String?
+  about                  String?
+  city                   String?
+  state                  String?           @db.Char(2)
+  phone                  String?
+  desiredTitle           String?
+  desiredWorkModels      WorkModel[]
+  desiredContractTypes   ContractType[]
+  desiredSeniority       Seniority?
+  desiredSalaryMin       Int?
+  desiredSectors         String[]
+  openToRelocation       Boolean           @default(false)
+  visibility             ProfileVisibility @default(PRIVATE)
+  showEmailToCompanies   Boolean           @default(true)
+  showPhoneToCompanies   Boolean           @default(false)
+  recommendationsEnabled Boolean           @default(true)
+  linkedinUrl            String?
+  portfolioUrl           String?
+  photoFileId            String?           @unique
+  photoFile              StoredFile?       @relation("ProfilePhoto", fields: [photoFileId], references: [id], onDelete: SetNull)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  experiences Experience[]
+  educations  Education[]
+  skills      ProfileSkill[]
+  resumes     Resume[]
+}
+
+model Experience {
+  id          String           @id @default(cuid())
+  profileId   String
+  profile     CandidateProfile @relation(fields: [profileId], references: [userId], onDelete: Cascade)
+  title       String
+  company     String
+  city        String?
+  startDate   DateTime         @db.Date
+  endDate     DateTime?        @db.Date
+  isCurrent   Boolean          @default(false)
+  description String?
+  createdAt   DateTime         @default(now())
+
+  @@index([profileId])
+}
+
+model Education {
+  id          String           @id @default(cuid())
+  profileId   String
+  profile     CandidateProfile @relation(fields: [profileId], references: [userId], onDelete: Cascade)
+  institution String
+  degree      String
+  field       String?
+  startDate   DateTime?        @db.Date
+  endDate     DateTime?        @db.Date
+  inProgress  Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  @@index([profileId])
+}
+
+model Skill {
+  id       String         @id @default(cuid())
+  name     String
+  slug     String         @unique
+  profiles ProfileSkill[]
+  jobs     JobSkill[]
+}
+
+model ProfileSkill {
+  profileId String
+  profile   CandidateProfile @relation(fields: [profileId], references: [userId], onDelete: Cascade)
+  skillId   String
+  skill     Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, skillId])
+  @@index([skillId])
+}
+
+// ----------------------------------------------------------------------------
+// Arquivos (armazenamento privado)
+// ----------------------------------------------------------------------------
+
+enum FileKind {
+  RESUME
+  PHOTO
+  ORG_LOGO
+}
+
+enum FileScanStatus {
+  PENDING
+  CLEAN
+  INFECTED
+  SKIPPED // apenas desenvolvimento, sem antivírus configurado
+  FAILED
+}
+
+model StoredFile {
+  id           String         @id @default(cuid())
+  ownerUserId  String?
+  owner        User?          @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+  kind         FileKind
+  storageKey   String         @unique
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  sha256       String
+  scanStatus   FileScanStatus @default(PENDING)
+  scanDetail   String?
+  createdAt    DateTime       @default(now())
+  deletedAt    DateTime?
+
+  resume       Resume?
+  profilePhoto CandidateProfile? @relation("ProfilePhoto")
+  orgLogo      Organization?     @relation("OrgLogo")
+
+  @@index([ownerUserId])
+}
+
+model Resume {
+  id           String           @id @default(cuid())
+  profileId    String
+  profile      CandidateProfile @relation(fields: [profileId], references: [userId], onDelete: Cascade)
+  fileId       String           @unique
+  file         StoredFile       @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  label        String
+  isDefault    Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  applications Application[]
+
+  @@index([profileId])
+}
+
+// ----------------------------------------------------------------------------
+// Empresas
+// ----------------------------------------------------------------------------
+
+enum OrgVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  RECRUITER
+  VIEWER
+}
+
+model Organization {
+  id                 String                @id @default(cuid())
+  slug               String                @unique
+  legalName          String
+  tradeName          String
+  cnpj               String                @unique // apenas dígitos; dado da pessoa jurídica
+  website            String?
+  contactEmail       String
+  description        String?
+  sector             String?
+  sizeRange          String?
+  city               String?
+  state              String?               @db.Char(2)
+  logoFileId         String?               @unique
+  logoFile           StoredFile?           @relation("OrgLogo", fields: [logoFileId], references: [id], onDelete: SetNull)
+  verificationStatus OrgVerificationStatus @default(PENDING)
+  verificationNotes  String?
+  verifiedAt         DateTime?
+  verifiedById       String?
+  verifiedBy         User?                 @relation("OrgVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  members     OrgMembership[]
+  invitations OrgInvitation[]
+  jobs        Job[]
+  reports     Report[]
+  auditLogs   AuditLog[]
+
+  @@index([verificationStatus])
+}
+
+model OrgMembership {
+  id        String       @id @default(cuid())
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      OrgRole
+  createdAt DateTime     @default(now())
+
+  @@unique([orgId, userId])
+  @@index([userId])
+}
+
+model OrgInvitation {
+  id          String       @id @default(cuid())
+  orgId       String
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  email       String
+  role        OrgRole
+  tokenHash   String       @unique
+  invitedById String?
+  invitedBy   User?        @relation(fields: [invitedById], references: [id], onDelete: SetNull)
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([orgId])
+  @@index([email])
+}
+
+// ----------------------------------------------------------------------------
+// Vagas e candidaturas
+// ----------------------------------------------------------------------------
+
+enum JobStatus {
+  DRAFT
+  PENDING_REVIEW // retida pela moderação (sinais de fraude ou empresa sob revisão)
+  ACTIVE
+  PAUSED
+  CLOSED
+  REMOVED // removida pela moderação
+}
+
+model Job {
+  id               String       @id @default(cuid())
+  orgId            String
+  org              Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdById      String?
+  createdBy        User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  title            String
+  description      String
+  requirements     String?
+  benefits         String?
+  sector           String
+  seniority        Seniority
+  contractType     ContractType
+  workModel        WorkModel
+  city             String?
+  state            String?      @db.Char(2)
+  salaryMin        Int?
+  salaryMax        Int?
+  salaryVisible    Boolean      @default(true)
+  positions        Int          @default(1)
+  status           JobStatus    @default(DRAFT)
+  moderationNotes  String?
+  fraudSignals     String[]
+  // Texto normalizado (minúsculo, sem acentos) usado na busca.
+  searchText       String       @default("")
+  publishedAt      DateTime?
+  closesAt         DateTime?
+  closedAt         DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  skills        JobSkill[]
+  applications  Application[]
+  savedBy       SavedJob[]
+  reports       Report[]
+
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "Job_searchText_trgm_idx")
+  @@index([status, publishedAt])
+  @@index([orgId, status])
+  @@index([state, city])
+  @@index([workModel])
+  @@index([contractType])
+  @@index([seniority])
+  @@index([sector])
+}
+
+model JobSkill {
+  jobId    String
+  job      Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skillId  String
+  skill    Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  required Boolean @default(true)
+
+  @@id([jobId, skillId])
+  @@index([skillId])
+}
+
+enum ApplicationStatus {
+  SUBMITTED // Enviada
+  IN_REVIEW // Em análise
+  INTERVIEW // Entrevista
+  APPROVED // Aprovada
+  REJECTED // Recusada
+  WITHDRAWN // Retirada
+}
+
+model Application {
+  id              String            @id @default(cuid())
+  jobId           String
+  job             Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateUserId String
+  candidate       User              @relation("CandidateApplications", fields: [candidateUserId], references: [id], onDelete: Cascade)
+  resumeId        String?
+  resume          Resume?           @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  coverLetter     String?
+  // Recorte do perfil que o candidato concordou em compartilhar no momento da candidatura.
+  profileSnapshot Json
+  status          ApplicationStatus @default(SUBMITTED)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  history ApplicationStatusChange[]
+
+  @@unique([jobId, candidateUserId]) // impede candidatura duplicada
+  @@index([candidateUserId])
+  @@index([jobId, status])
+}
+
+model ApplicationStatusChange {
+  id                 String             @id @default(cuid())
+  applicationId      String
+  application        Application        @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fromStatus         ApplicationStatus?
+  toStatus           ApplicationStatus
+  changedById        String?
+  changedBy          User?              @relation(fields: [changedById], references: [id], onDelete: SetNull)
+  messageToCandidate String?
+  internalNote       String? // visível apenas para a empresa
+  createdAt          DateTime           @default(now())
+
+  @@index([applicationId, createdAt])
+}
+
+model SavedJob {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, jobId])
+  @@index([jobId])
+}
+
+enum AlertFrequency {
+  DAILY
+  WEEKLY
+}
+
+model JobAlert {
+  id         String         @id @default(cuid())
+  userId     String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  // Filtros da busca (validados por Zod antes de salvar).
+  filters    Json
+  frequency  AlertFrequency @default(WEEKLY)
+  active     Boolean        @default(true)
+  lastSentAt DateTime?
+  createdAt  DateTime       @default(now())
+
+  @@index([userId])
+  @@index([active, frequency])
+}
+
+enum NotificationType {
+  APPLICATION_STATUS
+  APPLICATION_RECEIVED
+  JOB_ALERT
+  ORG_STATUS
+  JOB_MODERATION
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, readAt])
+}
+
+model CommunicationPreference {
+  userId                 String   @id
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailApplicationUpdates Boolean @default(true)
+  emailJobAlerts          Boolean @default(true)
+  emailProductNews        Boolean @default(false)
+  updatedAt               DateTime @updatedAt
+}
+
+// ----------------------------------------------------------------------------
+// Privacidade, consentimento, moderação, auditoria e incidentes
+// ----------------------------------------------------------------------------
+
+enum ConsentKind {
+  COOKIES
+  TERMS_OF_USE
+  PRIVACY_NOTICE
+  PRODUCT_NEWS
+}
+
+model ConsentRecord {
+  id              String      @id @default(cuid())
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // HMAC do identificador anônimo do cookie de consentimento (não reversível)
+  anonymousIdHash String?
+  kind            ConsentKind
+  version         String
+  choices         Json
+  action          String // GRANT_ALL | REJECT_OPTIONAL | CUSTOM | REVOKE | ACCEPT
+  ipHash          String?
+  createdAt       DateTime    @default(now())
+
+  @@index([userId])
+  @@index([anonymousIdHash])
+}
+
+enum PrivacyRequestType {
+  ACCESS // confirmação e acesso
+  CORRECTION
+  EXPORT // portabilidade
+  DELETION
+  ANONYMIZATION
+  CONSENT_REVOCATION
+  OPPOSITION
+  INFORMATION // informação sobre compartilhamento
+}
+
+enum PrivacyRequestStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+}
+
+model PrivacyRequest {
+  id             String               @id @default(cuid())
+  protocol       String               @unique
+  userId         String?
+  user           User?                @relation("PrivacyRequester", fields: [userId], references: [id], onDelete: SetNull)
+  requesterName  String
+  requesterEmail String
+  type           PrivacyRequestType
+  description    String
+  status         PrivacyRequestStatus @default(OPEN)
+  response       String?
+  handledById    String?
+  handledBy      User?                @relation("PrivacyHandler", fields: [handledById], references: [id], onDelete: SetNull)
+  dueAt          DateTime
+  completedAt    DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([status, dueAt])
+  @@index([userId])
+}
+
+enum ReportReason {
+  SCAM
+  PAYMENT_REQUEST
+  MISLEADING
+  DISCRIMINATORY
+  DUPLICATE
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id             String        @id @default(cuid())
+  reporterUserId String?
+  reporter       User?         @relation("Reporter", fields: [reporterUserId], references: [id], onDelete: SetNull)
+  jobId          String?
+  job            Job?          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  orgId          String?
+  org            Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  reason         ReportReason
+  details        String
+  status         ReportStatus  @default(OPEN)
+  resolution     String?
+  handledById    String?
+  handledBy      User?         @relation("ReportHandler", fields: [handledById], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
+  resolvedAt     DateTime?
+
+  @@index([status, createdAt])
+}
+
+model AuditLog {
+  id          String        @id @default(cuid())
+  actorUserId String?
+  actor       User?         @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  action      String
+  targetType  String?
+  targetId    String?
+  orgId       String?
+  org         Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  ipHash      String?
+  userAgent   String?
+  // Metadados já sanitizados (sem senhas, tokens, documentos ou conteúdo de currículo)
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+
+  @@index([createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([orgId, createdAt])
+  @@index([targetType, targetId])
+  @@index([action])
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  OPEN
+  CONTAINED
+  RESOLVED
+}
+
+model SecurityIncident {
+  id                       String           @id @default(cuid())
+  title                    String
+  description              String
+  severity                 IncidentSeverity
+  status                   IncidentStatus   @default(OPEN)
+  detectedAt               DateTime
+  containedAt              DateTime?
+  resolvedAt               DateTime?
+  personalDataAffected     Boolean          @default(false)
+  dataCategories           String[]
+  estimatedSubjects        Int?
+  riskAssessment           String?
+  anpdNotificationRequired Boolean?
+  anpdNotifiedAt           DateTime?
+  subjectsNotifiedAt       DateTime?
+  actionsTaken             String?
+  createdById              String?
+  createdBy                User?            @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+
+  @@index([status])
+}
+
+// ----------------------------------------------------------------------------
+// Observatório — dados públicos oficiais (Novo CAGED, RAIS, IBGE)
+// Populados exclusivamente pelo pipeline em /data-pipeline.
+// ----------------------------------------------------------------------------
+
+enum StatSource {
+  NOVO_CAGED
+  RAIS
+  IBGE
+}
+
+enum ImportStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum StatDatasetStatus {
+  STAGED // importado, aguardando publicação por administrador
+  PUBLISHED
+  ARCHIVED
+}
+
+enum TerritoryLevel {
+  BR
+  REGION
+  UF
+  MUNICIPALITY
+}
+
+model StatTerritory {
+  code       String         @id // "BR", código IBGE da UF (2 díg.) ou município (7 díg.)
+  level      TerritoryLevel
+  name       String
+  ufCode     String?
+  ufAbbr     String?        @db.Char(2)
+  regionName String?
+
+  @@index([level])
+  @@index([ufCode])
+}
+
+model StatClassification {
+  system String // CNAE2_SECAO | CBO2002_GRANDE_GRUPO | CBO2002_FAMILIA ...
+  code   String
+  title  String
+
+  @@id([system, code])
+}
+
+model DataImport {
+  id           String       @id @default(cuid())
+  source       StatSource
+  description  String
+  status       ImportStatus @default(RUNNING)
+  startedAt    DateTime     @default(now())
+  finishedAt   DateTime?
+  files        Json // [{name, sha256, bytes, url}]
+  rowsRead     Int          @default(0)
+  rowsValid    Int          @default(0)
+  rowsRejected Int          @default(0)
+  errorSummary String?
+  pipelineVersion String
+  datasets     StatDataset[]
+
+  @@index([source, startedAt])
+}
+
+model StatDataset {
+  id               String            @id @default(cuid())
+  importId         String
+  import           DataImport        @relation(fields: [importId], references: [id], onDelete: Cascade)
+  source           StatSource
+  title            String
+  // Período de referência coberto (competências)
+  referenceStart   DateTime          @db.Date
+  referenceEnd     DateTime          @db.Date
+  sourcePublishedAt DateTime?        @db.Date
+  sourceUrl        String
+  methodologyUrl   String
+  methodologyNotes String
+  license          String
+  status           StatDatasetStatus @default(STAGED)
+  publishedAt      DateTime?
+  createdAt        DateTime          @default(now())
+
+  flows      StatEmploymentFlow[]
+  stocks     StatEmploymentStock[]
+  indicators StatIndicator[]
+
+  @@index([source, status])
+}
+
+// Movimentação de emprego formal (Novo CAGED): admissões, desligamentos e saldo.
+model StatEmploymentFlow {
+  id             String         @id @default(cuid())
+  datasetId      String
+  dataset        StatDataset    @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  period         DateTime       @db.Date // 1º dia da competência
+  territoryLevel TerritoryLevel
+  territoryCode  String
+  sectorCode     String // seção CNAE 2.0 (A–U) ou "*" para total
+  occupationCode String // grande grupo CBO ou "*" para total
+  admissions     Int
+  separations    Int
+  balance        Int
+  // Mediana do salário de admissão (só com amostra mínima e valores válidos).
+  medianAdmissionWage Decimal?  @db.Decimal(12, 2)
+  wageSampleSize Int?
+
+  @@unique([datasetId, period, territoryLevel, territoryCode, sectorCode, occupationCode])
+  @@index([territoryLevel, territoryCode, period])
+  @@index([sectorCode, period])
+}
+
+// Séries de indicadores oficiais (ex.: taxa de desocupação da PNAD Contínua/IBGE).
+model StatIndicator {
+  id             String         @id @default(cuid())
+  datasetId      String
+  dataset        StatDataset    @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  indicator      String // ex.: PNADC_TAXA_DESOCUPACAO
+  periodCode     String // código do período na fonte (ex.: 202503 = 3º tri/2025)
+  periodLabel    String
+  periodStart    DateTime       @db.Date
+  territoryLevel TerritoryLevel
+  territoryCode  String
+  value          Decimal        @db.Decimal(14, 4)
+  unit           String
+
+  @@unique([datasetId, indicator, periodCode, territoryLevel, territoryCode])
+  @@index([indicator, territoryLevel, territoryCode, periodStart])
+}
+
+// Estoque de vínculos formais (RAIS) em 31/12 do ano de referência.
+model StatEmploymentStock {
+  id             String         @id @default(cuid())
+  datasetId      String
+  dataset        StatDataset    @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  year           Int
+  territoryLevel TerritoryLevel
+  territoryCode  String
+  sectorCode     String
+  occupationCode String
+  activeLinks    Int
+  avgWage        Decimal?       @db.Decimal(12, 2)
+  wageSampleSize Int?
+
+  @@unique([datasetId, year, territoryLevel, territoryCode, sectorCode, occupationCode])
+  @@index([territoryLevel, territoryCode, year])
+}
