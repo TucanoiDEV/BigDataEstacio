@@ -1,0 +1,66 @@
+# Ambiente de DESENVOLVIMENTO do Emprego Agora.
+# As credenciais abaixo são apenas para uso local. Nunca reutilize em produção.
+name: emprego-agora
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-emprego}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-emprego_dev_only}
+      POSTGRES_DB: ${POSTGRES_DB:-emprego_agora}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Caixa de e-mail local: captura todos os e-mails enviados em desenvolvimento.
+  # Interface web: http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.27
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+
+  # Antivírus para currículos enviados. Opcional em desenvolvimento:
+  #   docker compose --profile antivirus up -d
+  # A primeira inicialização baixa as assinaturas e pode levar alguns minutos.
+  clamav:
+    image: clamav/clamav:1.4
+    profiles: ["antivirus"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3310:3310"
+
+  # Aplicação em modo produção (opcional): docker compose --profile app up --build
+  app:
+    build:
+      context: .
+      args:
+        APP_URL: http://localhost:3000
+    profiles: ["app"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-emprego}:${POSTGRES_PASSWORD:-emprego_dev_only}@postgres:5432/${POSTGRES_DB:-emprego_agora}?schema=public
+      APP_URL: http://localhost:3000
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - appstorage:/data/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  appstorage:
