@@ -142,9 +142,12 @@ export async function withdrawApplication(user: CurrentUser, applicationId: stri
   });
   if (!app) throw notFound();
   if (!candidateCanWithdraw(app.status)) throw conflict("Esta candidatura já foi finalizada.");
-  const res = await db.application.updateMany({ where: { id: app.id, status: app.status }, data: { status: "WITHDRAWN" } });
-  if (res.count === 0) throw conflict("A candidatura foi atualizada. Recarregue a página.");
-  await db.applicationStatusChange.create({ data: { applicationId: app.id, fromStatus: app.status, toStatus: "WITHDRAWN", changedById: user.id } });
+  // Status e histórico juntos: uma falha no histórico reverte a retirada.
+  await db.$transaction(async (tx) => {
+    const res = await tx.application.updateMany({ where: { id: app.id, status: app.status }, data: { status: "WITHDRAWN" } });
+    if (res.count === 0) throw conflict("A candidatura foi atualizada. Recarregue a página.");
+    await tx.applicationStatusChange.create({ data: { applicationId: app.id, fromStatus: app.status, toStatus: "WITHDRAWN", changedById: user.id } });
+  });
   const recruiters = await db.orgMembership.findMany({ where: { orgId: app.job.orgId, role: { in: ["OWNER", "ADMIN", "RECRUITER"] } }, select: { userId: true } });
   await notifyMany(recruiters.map((r) => r.userId), { type: "APPLICATION_STATUS", title: "Candidatura retirada", body: `Uma candidatura para "${app.job.title}" foi retirada pelo(a) candidato(a).`, link: `/empresa/${app.job.orgId}/candidaturas/${app.id}` });
   await audit({ actorUserId: user.id, action: "application.withdrawn", orgId: app.job.orgId, targetType: "Application", targetId: app.id });

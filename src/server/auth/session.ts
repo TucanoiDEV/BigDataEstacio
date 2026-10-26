@@ -79,7 +79,9 @@ export async function createSession(
       userAgent: opts.userAgent ?? null,
     },
   });
-  await setSessionCookie(token, opts.mfaPending ? new Date(now + SESSION_TTL_MS) : expiresAt);
+  // O cookie só é gravado aqui (Server Components não podem regravá-lo na renovação),
+  // então dura até o teto absoluto; a validade deslizante é controlada pelo banco.
+  await setSessionCookie(token, new Date(now + SESSION_ABSOLUTE_MAX_MS));
 }
 
 export async function readSessionToken(): Promise<string | null> {
