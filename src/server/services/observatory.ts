@@ -5,7 +5,7 @@ import { db } from "@/server/db";
 // Observatório: lê SOMENTE conjuntos de dados oficiais PUBLICADOS por um
 // administrador. Nunca mistura com vagas anunciadas na plataforma.
 
-export type Territory = { level: TerritoryLevel; code: string; name: string; ufCode: string | null };
+export type Territory = { level: TerritoryLevel; code: string; name: string; ufCode: string | null; ufName: string | null };
 
 export async function getPublishedDatasets() {
   const rows = await db.statDataset.findMany({ where: { status: "PUBLISHED" }, include: { import: { select: { finishedAt: true, files: true } } } });
@@ -31,13 +31,16 @@ export async function listMunicipalities(ufCode: string) {
 export async function resolveTerritory(uf?: string, mun?: string): Promise<Territory> {
   if (mun && /^\d{7}$/.test(mun)) {
     const t = await db.statTerritory.findFirst({ where: { code: mun, level: "MUNICIPALITY" } });
-    if (t) return { level: "MUNICIPALITY", code: t.code, name: `${t.name} (${t.ufAbbr})`, ufCode: t.ufCode };
+    if (t) {
+      const uf = t.ufCode ? await db.statTerritory.findFirst({ where: { code: t.ufCode, level: "UF" }, select: { name: true } }) : null;
+      return { level: "MUNICIPALITY", code: t.code, name: `${t.name} (${t.ufAbbr})`, ufCode: t.ufCode, ufName: uf?.name ?? null };
+    }
   }
   if (uf && /^\d{2}$/.test(uf)) {
     const t = await db.statTerritory.findFirst({ where: { code: uf, level: "UF" } });
-    if (t) return { level: "UF", code: t.code, name: t.name, ufCode: t.code };
+    if (t) return { level: "UF", code: t.code, name: t.name, ufCode: t.code, ufName: t.name };
   }
-  return { level: "BR", code: "BR", name: "Brasil", ufCode: null };
+  return { level: "BR", code: "BR", name: "Brasil", ufCode: null, ufName: null };
 }
 
 const n = (v: unknown) => (v == null ? null : Number(v));

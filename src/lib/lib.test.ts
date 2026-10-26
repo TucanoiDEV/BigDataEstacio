@@ -12,7 +12,8 @@ import { jobSchema } from "@/lib/validation/job";
 import { inspectPdf, sanitizeFileName } from "@/lib/file-validation";
 import { decodeConsent, encodeConsent } from "@/lib/consent";
 import { LEGAL_VERSIONS } from "@/lib/constants";
-import { formatRelative, formatSalaryRange } from "@/lib/format";
+import { formatQuarter, formatRelative, formatSalaryRange } from "@/lib/format";
+import { contactSchema, privacyRequestSchema } from "@/lib/validation/privacy";
 import { escapeLike } from "@/server/services/search";
 
 describe("CNPJ", () => {
@@ -165,5 +166,19 @@ describe("formatação", () => {
     const now = new Date("2026-10-23T12:00:00Z");
     expect(formatRelative(new Date("2026-10-21T12:00:00Z"), now)).toBe("há 2 dias");
     expect(formatRelative(new Date("2026-10-22T12:00:00Z"), now)).toBe("ontem");
+  });
+});
+
+describe("regressões da auditoria", () => {
+  it("trimestre da PNAD não recua para o dia anterior no fuso de São Paulo", () => {
+    expect(formatQuarter(new Date("2023-07-01T00:00:00Z"))).toBe("3T/2023");
+    expect(formatQuarter(new Date("2026-04-01T00:00:00Z"))).toBe("2T/2026");
+  });
+  it("seleções vazias geram mensagens em português", () => {
+    const contact = contactSchema.safeParse({ name: "Ana", email: "ana@exemplo.com", subject: "", message: "Mensagem longa o bastante." });
+    expect(contact.success).toBe(false);
+    expect(contact.error?.issues.find((i) => i.path[0] === "subject")?.message).toBe("Selecione um assunto.");
+    const request = privacyRequestSchema.safeParse({ requesterName: "Ana", requesterEmail: "ana@exemplo.com", type: "", description: "Descrição longa o bastante." });
+    expect(request.error?.issues.find((i) => i.path[0] === "type")?.message).toBe("Selecione um tipo de solicitação.");
   });
 });

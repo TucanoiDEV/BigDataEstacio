@@ -108,7 +108,7 @@ async function Dashboard({ searchParams }: { searchParams: SP }) {
       {caged ? <CagedSection datasetId={caged.id} territory={territory} /> : (
         <EmptyState icon={Database} title="Dados do Novo CAGED não publicados" description="Indicadores de admissões, desligamentos e saldo aparecerão aqui após a importação e publicação." />
       )}
-      {pnad && <PnadSection territoryName={territory.level === "BR" ? null : territory.name} ufCode={territory.ufCode} />}
+      {pnad && <PnadSection territory={territory} />}
     </div>
   );
 }
@@ -251,17 +251,20 @@ async function CagedSection({ datasetId, territory }: { datasetId: string; terri
   );
 }
 
-async function PnadSection({ territoryName, ufCode }: { territoryName: string | null; ufCode: string | null }) {
+async function PnadSection({ territory }: { territory: Awaited<ReturnType<typeof resolveTerritory>> }) {
   const { pnad } = await getPublishedDatasets();
   if (!pnad) return null;
-  const series = await unemploymentSeries(pnad, ufCode);
+  const series = await unemploymentSeries(pnad, territory.ufCode);
   if (!series.length) return null;
-  const ufName = ufCode ? (territoryName?.replace(/ \(.+\)$/, "") ?? null) : null;
+  // A PNAD Contínua é estadual: com um município selecionado, o recorte exibido é a UF dele.
+  const ufName = territory.ufName;
   return (
     <section aria-labelledby="pnad-title" className="space-y-4">
       <h2 id="pnad-title" className="text-xl font-bold text-petroleum">Desocupação {ufName ? `— Brasil e ${ufName}` : "— Brasil"}</h2>
-      {ufCode && territoryName?.includes("(") && (
-        <p className="text-sm text-muted-foreground">A PNAD Contínua não é divulgada por município nesta tabela; exibimos a UF do município selecionado.</p>
+      {territory.level === "MUNICIPALITY" && ufName && (
+        <p className="text-sm text-muted-foreground">
+          A PNAD Contínua não produz estimativas municipais; exibimos {ufName}, UF de {territory.name}.
+        </p>
       )}
       <UnemploymentChart data={series} ufName={ufName} />
       <SourceNote dataset={pnad} />

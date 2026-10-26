@@ -1,6 +1,6 @@
 import { BookOpen } from "lucide-react";
 import type { PublishedDataset } from "@/server/services/observatory";
-import { formatDate, formatDateTime, formatMonth } from "@/lib/format";
+import { formatDateTime, formatMonth, formatQuarter } from "@/lib/format";
 
 const SOURCE_NAME = { NOVO_CAGED: "Novo CAGED — Ministério do Trabalho e Emprego (PDET)", RAIS: "RAIS — Ministério do Trabalho e Emprego", IBGE: "IBGE" } as const;
 
@@ -13,7 +13,7 @@ export function SourceNote({ dataset }: { dataset: PublishedDataset }) {
         <div><dt className="text-xs text-muted-foreground">Fonte</dt><dd>{SOURCE_NAME[dataset.source]} — {dataset.title}</dd></div>
         <div>
           <dt className="text-xs text-muted-foreground">Período de referência</dt>
-          <dd>{dataset.source === "IBGE" ? `${formatDate(dataset.referenceStart)} a ${formatDate(dataset.referenceEnd)} (início dos trimestres)` : `${formatMonth(dataset.referenceStart)} a ${formatMonth(dataset.referenceEnd)}`}</dd>
+          <dd>{dataset.source === "IBGE" ? `${formatQuarter(dataset.referenceStart)} a ${formatQuarter(dataset.referenceEnd)}` : `${formatMonth(dataset.referenceStart)} a ${formatMonth(dataset.referenceEnd)}`}</dd>
         </div>
         <div><dt className="text-xs text-muted-foreground">Importado em</dt><dd>{dataset.import.finishedAt ? formatDateTime(dataset.import.finishedAt) : "—"}</dd></div>
         <div><dt className="text-xs text-muted-foreground">Publicado no observatório</dt><dd>{dataset.publishedAt ? formatDateTime(dataset.publishedAt) : "—"}</dd></div>
