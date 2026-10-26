@@ -1,7 +1,7 @@
 import "server-only";
 import type { OrgRole } from "@/generated/prisma/client";
 import { Prisma } from "@/generated/prisma/client";
-import { db } from "@/server/db";
+import { db, type Tx } from "@/server/db";
 import { env } from "@/server/env";
 import { audit } from "@/server/audit";
 import { conflict, forbidden, invalid, notFound } from "@/server/errors";
@@ -164,8 +164,12 @@ export async function acceptInvitation(user: CurrentUser, token: string): Promis
   if (inv.email !== user.email) throw forbidden("Este convite foi enviado para outro e-mail. Entre com a conta correspondente.");
 
   await db.$transaction(async (tx) => {
-    const claimed = await tx.orgInvitation.updateMany({ where: { id: inv.id, acceptedAt: null }, data: { acceptedAt: new Date() } });
-    if (claimed.count === 0) throw conflict("Convite já utilizado.");
+    // Revogação ou expiração entre a leitura e o aceite também invalidam o convite.
+    const claimed = await tx.orgInvitation.updateMany({
+      where: { id: inv.id, acceptedAt: null, revokedAt: null, expiresAt: { gt: new Date() } },
+      data: { acceptedAt: new Date() },
+    });
+    if (claimed.count === 0) throw conflict("Convite inválido, revogado ou já utilizado.");
     await tx.orgMembership.upsert({
       where: { orgId_userId: { orgId: inv.org.id, userId: user.id } },
       create: { orgId: inv.org.id, userId: user.id, role: inv.role },
@@ -176,8 +180,16 @@ export async function acceptInvitation(user: CurrentUser, token: string): Promis
   return inv.org.id;
 }
 
-async function ownerCount(orgId: string) {
-  return db.orgMembership.count({ where: { orgId, role: "OWNER" } });
+/**
+ * Executa uma alteração de vínculos com a linha da empresa travada (FOR UPDATE): duas alterações
+ * simultâneas na mesma empresa são serializadas, e a contagem de proprietários(as) feita dentro
+ * da transação já enxerga a alteração anterior. Assim nunca sobram zero proprietários(as).
+ */
+async function withMembershipLock<T>(orgId: string, fn: (tx: Tx, ownerCount: () => Promise<number>) => Promise<T>): Promise<T> {
+  return db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT 1 FROM "Organization" WHERE "id" = ${orgId} FOR UPDATE`;
+    return fn(tx, () => tx.orgMembership.count({ where: { orgId, role: "OWNER" } }));
+  });
 }
 
 export async function changeMemberRole(access: OrgAccess, membershipId: string, role: OrgRole) {
@@ -187,10 +199,12 @@ export async function changeMemberRole(access: OrgAccess, membershipId: string, 
   if (!canManageRole(access.membership.role, target.role) || !canManageRole(access.membership.role, role)) {
     throw forbidden("Você não pode alterar esse papel.");
   }
-  if (target.role === "OWNER" && role !== "OWNER" && (await ownerCount(access.org.id)) <= 1) {
-    throw conflict("A empresa precisa de pelo menos um(a) proprietário(a).");
-  }
-  await db.orgMembership.update({ where: { id: target.id }, data: { role } });
+  await withMembershipLock(access.org.id, async (tx, ownerCount) => {
+    if (target.role === "OWNER" && role !== "OWNER" && (await ownerCount()) <= 1) {
+      throw conflict("A empresa precisa de pelo menos um(a) proprietário(a).");
+    }
+    await tx.orgMembership.update({ where: { id: target.id }, data: { role } });
+  });
   await audit({ actorUserId: access.user.id, action: "org.member_role_changed", orgId: access.org.id, targetType: "User", targetId: target.userId, metadata: { from: target.role, to: role } });
 }
 
@@ -199,9 +213,12 @@ export async function removeMember(access: OrgAccess, membershipId: string) {
   if (!target) throw notFound("Membro não encontrado.");
   const self = target.userId === access.user.id;
   if (!self && !canManageRole(access.membership.role, target.role)) throw forbidden("Você não pode remover esse membro.");
-  if (target.role === "OWNER" && (await ownerCount(access.org.id)) <= 1) {
-    throw conflict("A empresa precisa de pelo menos um(a) proprietário(a).");
-  }
-  await db.orgMembership.delete({ where: { id: target.id } });
+  await withMembershipLock(access.org.id, async (tx, ownerCount) => {
+    if (target.role === "OWNER" && (await ownerCount()) <= 1) {
+      throw conflict("A empresa precisa de pelo menos um(a) proprietário(a).");
+    }
+    // deleteMany: se o vínculo já foi removido por uma operação concorrente, não há erro de "não encontrado".
+    await tx.orgMembership.deleteMany({ where: { id: target.id } });
+  });
   await audit({ actorUserId: access.user.id, action: self ? "org.member_left" : "org.member_removed", orgId: access.org.id, targetType: "User", targetId: target.userId });
 }

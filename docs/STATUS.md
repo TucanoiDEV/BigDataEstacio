@@ -31,7 +31,7 @@ Atualizado em 23/10/2026. Legenda: ✅ pronto e testado · 🟡 pronto, com ress
 - ✅ Empresas: cadastro com validação de CNPJ, verificação pela moderação, perfil, logo, membros com papéis, convites.
 - ✅ Vagas: rascunho, publicação, edição, pausa, encerramento; retenção automática por sinais de fraude.
 - ✅ Busca com palavra-chave, UF, município, salário, senioridade, setor, contratação, modalidade, ordenação e paginação; páginas de vaga com JSON-LD apenas para vagas ativas; sitemap e robots.
-- ⏳ Data de encerramento automático da vaga (`closesAt` existe no modelo e é respeitada na busca, mas não há campo no formulário).
+- ✅ Data de encerramento da vaga: campo "Inscrições até" no formulário (opcional, até um ano); a vaga sai da busca após a data.
 - ⏳ Busca de talentos para empresas (a preferência de visibilidade é armazenada; a interface informa que a busca ainda não existe).
 
 ### Fase 3 — Candidaturas, currículos, alertas, painéis

@@ -18,10 +18,10 @@ export function SiteHeader() {
         <Logo />
         <MainNav />
         <div className="ml-auto flex items-center gap-2">
-          <Suspense fallback={<Skeleton className="h-9 w-40" />}>
+          {/* O menu móvel vem do UserMenu, que conhece a sessão; enquanto carrega, só os links gerais. */}
+          <Suspense fallback={<><Skeleton className="h-9 w-40" /><MobileNav /></>}>
             <UserMenu />
           </Suspense>
-          <MobileNav />
         </div>
       </div>
     </header>

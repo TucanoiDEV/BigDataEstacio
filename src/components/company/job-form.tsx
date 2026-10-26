@@ -65,6 +65,14 @@ export function JobForm({ orgId, jobId, status, defaults, orgVerified }: { orgId
           <SelectField form={form} name={"state" as never} label="UF" options={UFS.map((u) => ({ value: u.code, label: `${u.code} — ${u.name}` }))} allowEmpty />
           <TextField form={form} name={"positions" as never} label="Nº de posições" type="number" min={1} max={1000} />
         </div>
+        <TextField
+          form={form}
+          name={"closesAt" as never}
+          label="Inscrições até"
+          type="date"
+          className="sm:max-w-xs"
+          hint="Opcional. Depois dessa data, a vaga sai da busca e para de receber candidaturas."
+        />
       </section>
 
       <section className="space-y-4 rounded-2xl border bg-card p-5 sm:p-6">

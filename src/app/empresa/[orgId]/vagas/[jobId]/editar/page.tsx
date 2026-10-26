@@ -44,6 +44,8 @@ async function Content({ params }: { params: PageProps<"/empresa/[orgId]/vagas/[
         salaryMax: job.salaryMax,
         salaryVisible: job.salaryVisible,
         positions: job.positions,
+        // Campo de data espera "AAAA-MM-DD" no horário de Brasília.
+        closesAt: job.closesAt ? job.closesAt.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" }) : null,
         skills: job.skills.map((s) => s.skill.name),
         requiredSkills: job.skills.filter((s) => s.required).map((s) => s.skill.name),
       }}

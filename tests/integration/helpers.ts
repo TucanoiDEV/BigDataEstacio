@@ -88,6 +88,7 @@ export const JOB_INPUT = {
   salaryMax: 3200,
   salaryVisible: true,
   positions: 1,
+  closesAt: null,
   skills: ["Atendimento", "Windows"],
   requiredSkills: [],
   publish: true,

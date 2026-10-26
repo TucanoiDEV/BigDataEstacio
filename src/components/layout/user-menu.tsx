@@ -3,11 +3,19 @@ import { Bell } from "lucide-react";
 import { getCurrentUser } from "@/server/auth/dal";
 import { db } from "@/server/db";
 import { AuthLinks } from "@/components/layout/site-header";
+import { MobileNav } from "@/components/layout/main-nav";
 import { UserMenuDropdown } from "@/components/layout/user-menu-dropdown";
 
 export async function UserMenu() {
   const user = await getCurrentUser();
-  if (!user) return <AuthLinks />;
+  if (!user) {
+    return (
+      <>
+        <AuthLinks />
+        <MobileNav account={null} />
+      </>
+    );
+  }
 
   const [unread, memberships] = await Promise.all([
     db.notification.count({ where: { userId: user.id, readAt: null } }),
@@ -39,6 +47,7 @@ export async function UserMenu() {
         isAdmin={user.platformRole === "PLATFORM_ADMIN"}
         orgs={memberships.map((m) => m.org)}
       />
+      <MobileNav account={{ name: user.name, isAdmin: user.platformRole === "PLATFORM_ADMIN", orgs: memberships.map((m) => m.org) }} />
     </div>
   );
 }

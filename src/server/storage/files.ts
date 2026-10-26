@@ -100,6 +100,23 @@ export async function deleteStoredFile(fileId: string): Promise<void> {
   await db.storedFile.update({ where: { id: fileId }, data: { deletedAt: new Date() } });
 }
 
+/**
+ * Remove do disco o conteúdo de arquivos já marcados como excluídos no banco. Usado depois que a
+ * transação foi confirmada: uma falha aqui deixa só bytes órfãos (sem acesso pela aplicação),
+ * nunca um registro apontando para um arquivo inexistente. Devolve as chaves que falharam.
+ */
+export async function removeStoredContents(storageKeys: string[]): Promise<string[]> {
+  const failed: string[] = [];
+  for (const key of storageKeys) {
+    try {
+      await rm(resolveKey(key), { force: true });
+    } catch {
+      failed.push(key);
+    }
+  }
+  return failed;
+}
+
 export function isDownloadable(scanStatus: FileScanStatus): boolean {
   return scanStatus === "CLEAN" || (scanStatus === "SKIPPED" && !env().isProduction);
 }
