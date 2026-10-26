@@ -3,10 +3,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Briefcase, Building2, LogIn, Menu, UserPlus } from "lucide-react";
+import { BarChart3, Bell, Briefcase, Building2, FileText, Heart, LayoutDashboard, LogIn, LogOut, Menu, Plus, Shield, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
+import { logoutAction } from "@/app/actions/auth";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -40,8 +41,61 @@ export function MainNav() {
   return <ActiveAware render={(isActive) => <MainNavList isActive={isActive} />} />;
 }
 
-export function MobileNav() {
-  return <ActiveAware render={(isActive) => <MobileNavSheet isActive={isActive} />} />;
+/** Conta para o menu móvel: null = visitante; undefined = sessão ainda carregando (sem links de conta). */
+export type MobileAccount = { name: string; isAdmin: boolean; orgs: { id: string; tradeName: string }[] } | null;
+
+export function MobileNav({ account }: { account?: MobileAccount }) {
+  return <ActiveAware render={(isActive) => <MobileNavSheet isActive={isActive} account={account} />} />;
+}
+
+const itemCls = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted";
+
+function SheetLink({ href, icon: Icon, children, isActive }: { href: string; icon: React.ComponentType<{ className?: string }>; children: React.ReactNode; isActive: IsActive }) {
+  return (
+    <li>
+      <SheetClose asChild>
+        <Link href={href} aria-current={isActive(href) ? "page" : undefined} className={cn(itemCls, isActive(href) && "bg-secondary text-secondary-foreground")}>
+          <Icon className="size-4" aria-hidden />
+          {children}
+        </Link>
+      </SheetClose>
+    </li>
+  );
+}
+
+function AccountSection({ account, isActive }: { account: MobileAccount; isActive: IsActive }) {
+  if (!account) {
+    return (
+      <>
+        <SheetLink href="/entrar" icon={LogIn} isActive={isActive}>Entrar</SheetLink>
+        <SheetLink href="/criar-conta" icon={UserPlus} isActive={isActive}>Criar conta</SheetLink>
+      </>
+    );
+  }
+  return (
+    <>
+      <li className="px-3 pb-1 text-xs font-semibold text-muted-foreground">Olá, {account.name.split(" ")[0]}</li>
+      <SheetLink href="/minha-conta" icon={LayoutDashboard} isActive={isActive}>Minha conta</SheetLink>
+      <SheetLink href="/minha-conta/candidaturas" icon={FileText} isActive={isActive}>Candidaturas</SheetLink>
+      <SheetLink href="/minha-conta/favoritas" icon={Heart} isActive={isActive}>Vagas salvas</SheetLink>
+      <SheetLink href="/minha-conta/notificacoes" icon={Bell} isActive={isActive}>Notificações</SheetLink>
+      <li className="px-3 pb-1 pt-3 text-xs font-semibold text-muted-foreground">Empresas</li>
+      {account.orgs.map((o) => (
+        <SheetLink key={o.id} href={`/empresa/${o.id}`} icon={Building2} isActive={isActive}>
+          <span className="truncate">{o.tradeName}</span>
+        </SheetLink>
+      ))}
+      <SheetLink href="/empresa/nova" icon={Plus} isActive={isActive}>Cadastrar empresa</SheetLink>
+      {account.isAdmin && <SheetLink href="/admin" icon={Shield} isActive={isActive}>Administração</SheetLink>}
+      <li className="pt-3">
+        <form action={logoutAction}>
+          <button type="submit" className={cn(itemCls, "w-full text-left")}>
+            <LogOut className="size-4" aria-hidden /> Sair
+          </button>
+        </form>
+      </li>
+    </>
+  );
 }
 
 function MainNavList({ isActive }: { isActive: IsActive }) {
@@ -67,7 +121,7 @@ function MainNavList({ isActive }: { isActive: IsActive }) {
   );
 }
 
-function MobileNavSheet({ isActive }: { isActive: IsActive }) {
+function MobileNavSheet({ isActive, account }: { isActive: IsActive; account?: MobileAccount }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -99,21 +153,12 @@ function MobileNavSheet({ isActive }: { isActive: IsActive }) {
                 </SheetClose>
               </li>
             ))}
-            <li className="pt-3">
-              <SheetClose asChild>
-                <Link href="/entrar" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted">
-                  <LogIn className="size-4" aria-hidden /> Entrar
-                </Link>
-              </SheetClose>
-            </li>
-            <li>
-              <SheetClose asChild>
-                <Link href="/criar-conta" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted">
-                  <UserPlus className="size-4" aria-hidden /> Criar conta
-                </Link>
-              </SheetClose>
-            </li>
           </ul>
+          {account !== undefined && (
+            <ul className="mt-3 space-y-1 border-t pt-3">
+              <AccountSection account={account} isActive={isActive} />
+            </ul>
+          )}
         </nav>
       </SheetContent>
     </Sheet>
