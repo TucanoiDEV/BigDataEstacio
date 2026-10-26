@@ -89,7 +89,7 @@ export async function createJob(access: OrgAccess, data: JobData) {
 
 async function loadOrgJob(access: OrgAccess, jobId: string) {
   // Escopo por orgId impede IDOR: o ID da vaga sozinho não basta.
-  const job = await db.job.findFirst({ where: { id: jobId, orgId: access.org.id }, select: { id: true, status: true, title: true, publishedAt: true } });
+  const job = await db.job.findFirst({ where: { id: jobId, orgId: access.org.id }, select: { id: true, status: true, title: true, publishedAt: true, fraudSignals: true } });
   if (!job) throw notFound("Vaga não encontrada.");
   return job;
 }
@@ -149,13 +149,17 @@ export async function changeJobLifecycle(access: OrgAccess, jobId: string, actio
   if (!allowed[action].includes(job.status)) throw conflict("Essa ação não está disponível para o status atual da vaga.");
   if (action === "resume" && access.org.verificationStatus !== "VERIFIED") throw invalid("A empresa precisa estar verificada.");
 
-  const to: JobStatus = action === "pause" ? "PAUSED" : action === "resume" ? "ACTIVE" : "CLOSED";
+  // Retomar passa pela mesma regra de publicação: conteúdo editado com sinais de fraude
+  // enquanto pausado vai para moderação em vez de voltar ao ar.
+  const to: JobStatus = action === "pause" ? "PAUSED" : action === "resume" ? publishStatus(access.org.verificationStatus, job.fraudSignals) : "CLOSED";
   const res = await db.job.updateMany({
     where: { id: jobId, orgId: access.org.id, status: job.status },
     data: { status: to, closedAt: to === "CLOSED" ? new Date() : undefined },
   });
   if (res.count === 0) throw conflict("A vaga foi alterada por outra pessoa. Recarregue a página.");
   await audit({ actorUserId: access.user.id, action: `job.${action}`, orgId: access.org.id, targetType: "Job", targetId: jobId, metadata: { from: job.status, to } });
+  if (to === "PENDING_REVIEW") await warnModeration(jobId, job.title, job.fraudSignals);
+  return { status: to };
 }
 
 export async function getOrgJobForEdit(access: OrgAccess, jobId: string) {
