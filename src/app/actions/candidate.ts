@@ -148,7 +148,7 @@ export const removePhotoAction = createAction(z.object({}), async () => {
 export const createAlertAction = createAction(
   z.object({
     name: z.string().trim().min(2, "Dê um nome ao alerta.").max(80),
-    frequency: z.enum(["DAILY", "WEEKLY"]),
+    frequency: z.enum(["DAILY", "WEEKLY"], { error: "Escolha a frequência." }),
     filters: alertFiltersSchema,
   }),
   async (input) => {

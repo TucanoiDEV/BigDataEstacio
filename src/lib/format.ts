@@ -52,6 +52,12 @@ export function formatMonth(d: Date | string): string {
   return monthFmt.format(new Date(d)).replace(".", "");
 }
 
+/** Trimestre ("3T/2023") a partir da data de início armazenada em UTC. */
+export function formatQuarter(d: Date | string): string {
+  const date = new Date(d);
+  return `${Math.floor(date.getUTCMonth() / 3) + 1}T/${date.getUTCFullYear()}`;
+}
+
 /** "há 3 dias" relativo a `now` (passado explicitamente para evitar não determinismo na renderização). */
 export function formatRelative(d: Date | string, now: Date): string {
   const diffMs = now.getTime() - new Date(d).getTime();

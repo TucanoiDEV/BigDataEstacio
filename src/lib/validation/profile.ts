@@ -26,7 +26,7 @@ export const profileSchema = z.object({
   desiredTitle: optionalText(100, "Cargo desejado"),
   desiredWorkModels: z.array(z.enum(WORK_MODELS)).max(3).default([]),
   desiredContractTypes: z.array(z.enum(CONTRACT_TYPES)).max(6).default([]),
-  desiredSeniority: z.enum(SENIORITIES).nullish().transform((v) => v ?? null),
+  desiredSeniority: z.enum(SENIORITIES, { error: "Selecione uma senioridade válida." }).nullish().transform((v) => v ?? null),
   desiredSalaryMin: optionalMoney,
   desiredSectors: z.array(z.enum(SECTORS)).max(5, "Escolha até 5 setores.").default([]),
   openToRelocation: z.boolean().default(false),
@@ -63,7 +63,7 @@ export const educationSchema = z
 export type EducationInput = z.input<typeof educationSchema>;
 
 export const privacySettingsSchema = z.object({
-  visibility: z.enum(["PRIVATE", "VERIFIED_COMPANIES"]),
+  visibility: z.enum(["PRIVATE", "VERIFIED_COMPANIES"], { error: "Escolha a visibilidade." }),
   showEmailToCompanies: z.boolean(),
   showPhoneToCompanies: z.boolean(),
   recommendationsEnabled: z.boolean(),
