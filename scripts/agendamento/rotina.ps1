@@ -2,8 +2,9 @@
 #   -Tarefa dados       importa dados oficiais novos (Novo CAGED, PNAD) e publica se aprovado na qualidade
 #   -Tarefa alertas     envia alertas de vagas novas aos candidatos
 #   -Tarefa manutencao  remove sessões, tokens e limites expirados
+#   -Tarefa externas    importa vagas de outros sites (Adzuna, Greenhouse)
 param(
-  [Parameter(Mandatory = $true)][ValidateSet("dados", "alertas", "manutencao")][string]$Tarefa
+  [Parameter(Mandatory = $true)][ValidateSet("dados", "alertas", "manutencao", "externas")][string]$Tarefa
 )
 
 $ErrorActionPreference = "Stop"
@@ -56,6 +57,7 @@ try {
     "dados"      { Invoke-Native "cd /d `"$Repo\data-pipeline`" && .venv\Scripts\python.exe -m emprego_pipeline atualizar --publicar" }
     "alertas"    { Invoke-Native "npm run --silent jobs:alerts" }
     "manutencao" { Invoke-Native "npm run --silent jobs:maintenance" }
+    "externas"   { Invoke-Native "npm run --silent jobs:external" }
   }
   Write-Log "=== Fim: $Tarefa (código $code) ==="
   exit $code
