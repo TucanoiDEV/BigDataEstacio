@@ -60,6 +60,9 @@ export function UpdateOrgForm({ orgId, defaults }: { orgId: string; defaults: Up
     <form onSubmit={onSubmit} className="space-y-6 rounded-2xl border bg-card p-5 sm:p-6" noValidate>
       <FormRootError form={form} />
       <ProfileFields form={form as never} />
+      <p role="note" className="rounded-xl border bg-muted/50 p-4 text-sm text-muted-foreground">
+        Trocar o domínio do site ou o e-mail de contato devolve a empresa para verificação. Até a nova aprovação, as vagas ficam fora do ar.
+      </p>
       <SubmitButton pending={pending}>Salvar</SubmitButton>
     </form>
   );
