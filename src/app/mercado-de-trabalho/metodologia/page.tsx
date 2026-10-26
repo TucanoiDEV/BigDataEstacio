@@ -48,14 +48,14 @@ export default function MethodologyPage() {
           <li><strong>Territórios</strong>: Brasil, UF e município (código IBGE). Movimentações sem território identificado entram apenas no total Brasil.</li>
           <li><strong>Setores</strong>: seções da CNAE 2.0 (IBGE). <strong>Ocupações</strong>: grandes grupos da CBO 2002 (MTE). Municípios têm apenas totais.</li>
           <li>
-            <strong>Salário</strong>: publicamos a <em>mediana</em> do salário contratual de admissão — mais robusta a valores extremos do que a média —,
+            <strong>Salário</strong>: publicamos a <em>mediana</em> do salário contratual de admissão (mais robusta a valores extremos do que a média),
             apenas para mensalistas não intermitentes, entre 0,3 e 150 salários mínimos e com no mínimo 30 admissões válidas no recorte.
             Por isso pode diferir da média divulgada pelo MTE.
           </li>
           <li>Os valores podem diferir ligeiramente das publicações oficiais por diferenças de data de extração e de tratamento; para fins oficiais, consulte a fonte.</li>
         </ul>
         <p>
-          Fonte: <a className="text-primary underline" href="https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/estatisticas-trabalho/novo-caged" target="_blank" rel="noopener noreferrer">Novo CAGED — MTE</a>.
+          Fonte: <a className="text-primary underline" href="https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/estatisticas-trabalho/novo-caged" target="_blank" rel="noopener noreferrer">Novo CAGED, MTE</a>.
         </p>
       </Section>
 

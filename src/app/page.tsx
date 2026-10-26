@@ -12,8 +12,8 @@ import {
   Lock,
   MapPin,
   Search,
+  ListChecks,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
 } from "lucide-react";
 import { CardListSkeleton, EmptyState } from "@/components/common/states";
@@ -34,14 +34,12 @@ export default function HomePage() {
       <section className="hero-pattern text-white">
         <div className="container-page grid grid-cols-1 gap-10 py-14 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:py-20">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-emerald-200">
-              <BadgeCheck className="size-3.5" aria-hidden /> Empresas verificadas e sites oficiais de carreira
-            </p>
-            <h1 className="mt-4 text-4xl font-extrabold leading-tight sm:text-5xl">
-              Sua próxima oportunidade <span className="text-emerald-300">começa aqui</span>
+            <h1 className="text-4xl font-extrabold leading-tight sm:text-5xl">
+              Vagas de empresas verificadas e dados oficiais do emprego no Brasil
             </h1>
             <p className="mt-4 max-w-xl text-lg text-petroleum-foreground/85">
-              Encontre vagas, acompanhe cada etapa das suas candidaturas e entenda o mercado de trabalho com dados oficiais.
+              Busque por cargo, estado e modalidade. Acompanhe cada candidatura até a resposta da empresa e consulte admissões e
+              desligamentos do Novo CAGED por UF e município.
             </p>
             <form action="/vagas" method="get" role="search" className="mt-8 grid grid-cols-1 gap-2 rounded-2xl bg-white/10 p-2 backdrop-blur sm:grid-cols-[1.2fr_1fr_1.15fr_auto]">
               <div className="relative">
@@ -75,7 +73,7 @@ export default function HomePage() {
                 { href: "/vagas?contrato=CLT", label: "CLT" },
                 { href: "/vagas?senioridade=JUNIOR", label: "Júnior" },
               ].map((c) => (
-                <Link key={c.href} href={c.href} className="rounded-full bg-white/10 px-3 py-1 hover:bg-white/20">{c.label}</Link>
+                <Link key={c.href} href={c.href} className="rounded-md bg-white/10 px-3 py-1 hover:bg-white/20">{c.label}</Link>
               ))}
             </div>
           </div>
@@ -113,7 +111,7 @@ export default function HomePage() {
       <section className="container-page grid grid-cols-1 gap-8 py-14 lg:grid-cols-2 lg:items-center" aria-labelledby="observatorio">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-primary">Observatório do trabalho</p>
-          <h2 id="observatorio" className="mt-2 text-3xl font-bold text-petroleum">Decida com dados oficiais, não com achismo</h2>
+          <h2 id="observatorio" className="mt-2 text-3xl font-bold text-petroleum">Admissões, desligamentos e desocupação por região</h2>
           <p className="mt-3 text-muted-foreground">
             Acompanhe admissões, desligamentos e o saldo do emprego formal (Novo CAGED), a desocupação (PNAD Contínua/IBGE) e compare UFs,
             municípios, setores e ocupações. Toda informação traz fonte, data de referência e metodologia.
@@ -130,8 +128,8 @@ export default function HomePage() {
       <section className="bg-secondary/60" aria-labelledby="empresas">
         <div className="container-page grid grid-cols-1 gap-8 py-14 lg:grid-cols-[1fr_1.4fr] lg:items-center">
           <div>
-            <h2 id="empresas" className="text-3xl font-bold text-petroleum">Para empresas que contratam com responsabilidade</h2>
-            <p className="mt-3 text-muted-foreground">Publique vagas, organize candidaturas por etapa e trabalhe em equipe com permissões por papel.</p>
+            <h2 id="empresas" className="text-3xl font-bold text-petroleum">Para empresas: publique vagas e organize candidaturas</h2>
+            <p className="mt-3 text-muted-foreground">Cadastro gratuito com verificação de CNPJ. Cada candidatura passa por etapas visíveis ao candidato, e a equipe trabalha com permissões por papel.</p>
             <Link href="/empresa/nova" className="mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
               <Building2 className="size-4" aria-hidden /> Cadastrar minha empresa
             </Link>
@@ -139,7 +137,7 @@ export default function HomePage() {
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[
               { icon: BadgeCheck, title: "Verificação", text: "CNPJ e domínio conferidos antes da primeira vaga." },
-              { icon: KanbanSquare, title: "Etapas claras", text: "Enviada, em análise, entrevista e decisão — com o candidato sempre informado." },
+              { icon: KanbanSquare, title: "Etapas claras", text: "Enviada, em análise, entrevista e decisão, com o candidato sempre informado." },
               { icon: Lock, title: "Dados protegidos", text: "Acesso só às candidaturas da sua empresa, com registro de auditoria." },
             ].map((f) => (
               <li key={f.title} className="rounded-2xl border bg-card p-5">
@@ -157,7 +155,7 @@ export default function HomePage() {
         <ul className="mx-auto mt-8 grid max-w-5xl gap-4 sm:grid-cols-3">
           {[
             { icon: Eye, title: "Você controla seus dados", text: "Visibilidade do perfil, compartilhamento de contato por candidatura, exportação e exclusão.", href: "/central-de-privacidade" },
-            { icon: Sparkles, title: "Recomendações explicáveis", text: "Mostramos por que uma vaga combina com você. Nenhuma decisão automática sobre candidatos.", href: "/privacidade#recomendacoes" },
+            { icon: ListChecks, title: "Recomendações explicáveis", text: "Mostramos por que uma vaga combina com você. Nenhuma decisão automática sobre candidatos.", href: "/privacidade#recomendacoes" },
             { icon: ShieldCheck, title: "Segurança real", text: "Senhas com Argon2id, verificação em duas etapas, sessões revogáveis e moderação contra golpes.", href: "/seguranca" },
           ].map((f) => (
             <li key={f.title}>
@@ -197,7 +195,7 @@ async function HeroPanel() {
           </li>
         ))}
       </ul>
-      <p className="mt-5 text-xs text-petroleum-foreground/70">Contagens em tempo real: vagas publicadas na plataforma e reunidas dos sites de carreira das empresas.</p>
+      <p className="mt-5 text-xs text-petroleum-foreground/70">Contagem atual de vagas publicadas na plataforma e reunidas dos sites de carreira das empresas. Vagas de demonstração não entram na conta.</p>
     </div>
   );
 }
@@ -249,13 +247,13 @@ async function ObservatoryTeaser() {
       <div className="rounded-2xl border border-dashed bg-card p-6 text-sm text-muted-foreground">
         <BarChart3 className="mb-3 size-6 text-primary" aria-hidden />
         Os dados oficiais ainda não foram publicados neste ambiente. O observatório exibirá apenas números importados das fontes
-        oficiais — nunca estimativas fictícias.
+        oficiais, nunca estimativas fictícias.
       </div>
     );
   }
   return (
     <div className="rounded-2xl border bg-card p-6">
-      <p className="text-sm text-muted-foreground">Saldo do emprego formal no Brasil — {formatMonth(h.period)}</p>
+      <p className="text-sm text-muted-foreground">Saldo do emprego formal no Brasil em {formatMonth(h.period)}</p>
       <p className={`mt-1 text-5xl font-extrabold tabular-nums ${h.balance >= 0 ? "text-primary" : "text-[var(--chart-neg)]"}`}>{formatSigned(h.balance)}</p>
       <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
         <div><dt className="text-muted-foreground">Admissões</dt><dd className="text-lg font-semibold">{formatNumber(h.admissions)}</dd></div>

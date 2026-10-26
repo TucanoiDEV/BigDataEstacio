@@ -34,7 +34,7 @@ export function FlowsChart({ data, territory }: { data: Monthly[]; territory: st
   const last = rows.length - 1;
   return (
     <ChartFrame
-      title={`Admissões e desligamentos — ${territory}`}
+      title={`Admissões e desligamentos: ${territory}`}
       subtitle="Movimentações mensais de emprego formal (Novo CAGED, com ajustes)"
       legend={[{ label: "Admissões", color: "var(--chart-1)" }, { label: "Desligamentos", color: "var(--chart-2)" }]}
       table={{ headers: ["Competência", "Admissões", "Desligamentos", "Saldo"], rows: rows.map((r) => [r.label, r.admissions, r.separations, r.balance]) }}
@@ -68,7 +68,7 @@ export function BalanceChart({ data, territory }: { data: Monthly[]; territory: 
   const rows = data.map((d) => ({ ...d, label: monthLabel(d.period) }));
   return (
     <ChartFrame
-      title={`Saldo de empregos formais — ${territory}`}
+      title={`Saldo de empregos formais: ${territory}`}
       subtitle="Admissões menos desligamentos, por competência"
       legend={[{ label: "Saldo positivo", color: "var(--chart-pos)" }, { label: "Saldo negativo", color: "var(--chart-neg)" }]}
       table={{ headers: ["Competência", "Saldo"], rows: rows.map((r) => [r.label, r.balance]) }}
@@ -100,9 +100,9 @@ export function UnemploymentChart({ data, ufName }: { data: Quarterly[]; ufName:
   return (
     <ChartFrame
       title="Taxa de desocupação (PNAD Contínua/IBGE)"
-      subtitle="Pessoas de 14 anos ou mais, % da força de trabalho, trimestral — pesquisa amostral (sujeita a erro amostral)"
+      subtitle="Pessoas de 14 anos ou mais, % da força de trabalho, trimestral. Pesquisa amostral, sujeita a erro amostral"
       legend={legend}
-      table={{ headers: ["Trimestre", "Brasil (%)", ...(ufName ? [`${ufName} (%)`] : [])], rows: rows.map((r) => [r.label, r.br != null ? pct.format(r.br) : "—", ...(ufName ? [r.local != null ? pct.format(r.local) : "—"] : [])]) }}
+      table={{ headers: ["Trimestre", "Brasil (%)", ...(ufName ? [`${ufName} (%)`] : [])], rows: rows.map((r) => [r.label, r.br != null ? pct.format(r.br) : "-", ...(ufName ? [r.local != null ? pct.format(r.local) : "-"] : [])]) }}
     >
       <div className="h-64" role="img" aria-label="Gráfico de linhas da taxa de desocupação; use a tabela para os valores.">
         <ResponsiveContainer width="100%" height="100%">

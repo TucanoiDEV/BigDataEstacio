@@ -45,7 +45,7 @@ export default function PrivacyCenterPage() {
       </section>
       <section aria-labelledby="encarregado" className="rounded-2xl border border-dashed p-6 text-sm">
         <h2 id="encarregado" className="font-semibold text-petroleum">Encarregado(a) de dados (DPO)</h2>
-        <p className="mt-2">{fill(controller.dpoName, "nome do encarregado")} — {fill(controller.dpoEmail, "e-mail do encarregado")}</p>
+        <p className="mt-2">{fill(controller.dpoName, "nome do encarregado")}, {fill(controller.dpoEmail, "e-mail do encarregado")}</p>
         <p className="mt-2 text-muted-foreground">
           Se considerar que seus direitos não foram atendidos, você pode peticionar à Autoridade Nacional de Proteção de Dados (ANPD).
         </p>

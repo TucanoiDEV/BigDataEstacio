@@ -41,7 +41,7 @@ async function Content({ params }: { params: PageProps<"/empresa/[orgId]/membros
     <div className="space-y-6">
       <section className="rounded-2xl border bg-card p-5 sm:p-6">
         <h2 className="font-semibold text-petroleum">Convidar pessoa</h2>
-        <InviteForm orgId={orgId} roles={assignable.map((r) => ({ value: r, label: `${ORG_ROLE_LABEL[r]} — ${ROLE_HELP[r]}` }))} />
+        <InviteForm orgId={orgId} roles={assignable.map((r) => ({ value: r, label: `${ORG_ROLE_LABEL[r]}: ${ROLE_HELP[r]}` }))} />
       </section>
 
       <section className="rounded-2xl border bg-card" aria-labelledby="lista-membros">

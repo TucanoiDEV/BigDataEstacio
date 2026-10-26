@@ -13,7 +13,7 @@ import { idSchema } from "@/lib/validation/common";
 
 const sectorOpts = SECTORS.map((s) => ({ value: s, label: s }));
 const sizeOpts = COMPANY_SIZES.map((s) => ({ value: s, label: `${s} pessoas` }));
-const ufOpts = UFS.map((u) => ({ value: u.code, label: `${u.code} — ${u.name}` }));
+const ufOpts = UFS.map((u) => ({ value: u.code, label: `${u.code} - ${u.name}` }));
 
 function ProfileFields({ form }: { form: Parameters<typeof TextField>[0]["form"] }) {
   return (

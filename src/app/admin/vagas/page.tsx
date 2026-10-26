@@ -36,8 +36,8 @@ async function List({ searchParams }: { searchParams: PageProps<"/admin/vagas">[
   return (
     <div className="space-y-4">
       <nav className="flex gap-2" aria-label="Filas">
-        <Link href="/admin/vagas" aria-current={view === "PENDING_REVIEW" ? "page" : undefined} className={`rounded-full border px-3 py-1 text-sm ${view === "PENDING_REVIEW" && !id ? "border-primary bg-primary text-primary-foreground" : "bg-card"}`}>Em moderação</Link>
-        <Link href="/admin/vagas?ver=publicadas" aria-current={view === "ACTIVE" ? "page" : undefined} className={`rounded-full border px-3 py-1 text-sm ${view === "ACTIVE" && !id ? "border-primary bg-primary text-primary-foreground" : "bg-card"}`}>Publicadas</Link>
+        <Link href="/admin/vagas" aria-current={view === "PENDING_REVIEW" ? "page" : undefined} className={`rounded-md border px-3 py-1 text-sm ${view === "PENDING_REVIEW" && !id ? "border-primary bg-primary text-primary-foreground" : "bg-card"}`}>Em moderação</Link>
+        <Link href="/admin/vagas?ver=publicadas" aria-current={view === "ACTIVE" ? "page" : undefined} className={`rounded-md border px-3 py-1 text-sm ${view === "ACTIVE" && !id ? "border-primary bg-primary text-primary-foreground" : "bg-card"}`}>Publicadas</Link>
       </nav>
       {jobs.length === 0 ? <EmptyState icon={Briefcase} title="Nenhuma vaga nesta fila" /> : (
         <ul className="space-y-4">

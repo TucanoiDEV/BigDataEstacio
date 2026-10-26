@@ -64,8 +64,8 @@ async function List({ searchParams }: { searchParams: PageProps<"/admin/auditori
               <tr key={l.id} className="align-top">
                 <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">{formatDateTime(l.createdAt)}</td>
                 <td className="px-3 py-2 font-mono text-xs">{l.action}</td>
-                <td className="px-3 py-2">{l.actor?.name ?? "—"}{l.org ? <span className="block text-xs text-muted-foreground">{l.org.tradeName}</span> : null}</td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">{l.targetType ? `${l.targetType} ${l.targetId?.slice(0, 10)}…` : "—"}</td>
+                <td className="px-3 py-2">{l.actor?.name ?? "-"}{l.org ? <span className="block text-xs text-muted-foreground">{l.org.tradeName}</span> : null}</td>
+                <td className="px-3 py-2 text-xs text-muted-foreground">{l.targetType ? `${l.targetType} ${l.targetId?.slice(0, 10)}…` : "-"}</td>
                 <td className="max-w-xs px-3 py-2"><code className="line-clamp-3 break-all text-xs">{l.metadata ? JSON.stringify(l.metadata) : ""}</code></td>
               </tr>
             ))}

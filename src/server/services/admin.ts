@@ -61,7 +61,7 @@ export async function moderateJob(admin: CurrentUser, jobId: string, decision: "
       userId: job.createdById,
       type: "JOB_MODERATION",
       title: decision === "approve" ? "Vaga aprovada na moderação" : "Vaga removida pela moderação",
-      body: `"${job.title}"${notes ? ` — ${notes}` : ""}`,
+      body: `"${job.title}"${notes ? `: ${notes}` : ""}`,
       link: `/empresa/${job.orgId}/vagas/${job.id}`,
     });
   }

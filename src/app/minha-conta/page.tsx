@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowRight, Briefcase, CalendarCheck, CheckCircle2, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Briefcase, CalendarCheck, CheckCircle2, Clock, ListChecks } from "lucide-react";
 import { CardListSkeleton, EmptyState, PageHeader, SectionSkeleton } from "@/components/common/states";
 import { ApplicationStatusBadge } from "@/components/common/application-status-badge";
 import { JobCard } from "@/components/jobs/job-card";
@@ -23,7 +23,7 @@ export default function CandidateDashboard() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <h2 id="recomendadas" className="flex items-center gap-2 text-lg font-semibold text-petroleum">
-              <Sparkles className="size-5 text-primary" aria-hidden /> Recomendadas para você
+              <ListChecks className="size-5 text-primary" aria-hidden /> Recomendadas para você
             </h2>
             <p className="text-sm text-muted-foreground">
               Ordenadas por competências, interesses, experiência, localização e modalidade que você informou.{" "}
@@ -142,9 +142,9 @@ async function Recommendations() {
   if (recs.length === 0) {
     return (
       <EmptyState
-        icon={Sparkles}
+        icon={ListChecks}
         title="Ainda não temos recomendações"
-        description="Adicione competências, cargo desejado e preferências de modalidade ao seu perfil — ou verifique se as recomendações estão ativadas em Privacidade."
+        description="Adicione competências, cargo desejado e preferências de modalidade ao seu perfil, ou verifique se as recomendações estão ativadas em Privacidade."
         action={{ href: "/minha-conta/perfil", label: "Atualizar perfil" }}
       />
     );

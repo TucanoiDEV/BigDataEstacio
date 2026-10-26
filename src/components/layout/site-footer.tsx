@@ -66,7 +66,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-white/10">
         <div className="container-page flex flex-col gap-2 py-5 text-xs text-petroleum-foreground/70 sm:flex-row sm:items-center sm:justify-between">
-          <p>Emprego Agora — dados estatísticos de fontes públicas oficiais (Novo CAGED, RAIS, IBGE), citadas em cada indicador.</p>
+          <p>Emprego Agora. Dados estatísticos de fontes públicas oficiais (Novo CAGED, RAIS, IBGE), citadas em cada indicador.</p>
           <CookiePreferencesButton className="text-left underline underline-offset-2 hover:text-white" />
         </div>
       </div>

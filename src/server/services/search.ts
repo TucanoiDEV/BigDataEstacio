@@ -151,18 +151,18 @@ export async function publicJobStats(now = new Date()): Promise<{ jobs: number; 
   const [row] = await db.$queryRaw<{ jobs: bigint; companies: bigint; states: bigint }[]>`
     SELECT count(*) AS jobs, count(DISTINCT company) AS companies, count(DISTINCT state) AS states FROM (
       SELECT 'org:' || j."orgId" AS company, j."state" FROM "Job" j JOIN "Organization" o ON o."id" = j."orgId"
-      WHERE j."status" = 'ACTIVE' AND o."verificationStatus" = 'VERIFIED' AND (j."closesAt" IS NULL OR j."closesAt" > ${now})
+      WHERE j."status" = 'ACTIVE' AND o."verificationStatus" = 'VERIFIED' AND NOT o."isDemo" AND (j."closesAt" IS NULL OR j."closesAt" > ${now})
       UNION ALL
       SELECT 'ext:' || lower(e."companyName"), e."state" FROM "ExternalJob" e WHERE e."active"
     ) s`;
   return { jobs: Number(row?.jobs ?? 0), companies: Number(row?.companies ?? 0), states: Number(row?.states ?? 0) };
 }
 
-/** Setores com mais vagas ativas (para a página inicial). */
+/** Setores com mais vagas ativas (para a página inicial). Vagas de demonstração não entram na contagem. */
 export async function trendingSectors(limit = 8, now = new Date()) {
   const rows = await db.job.groupBy({
     by: ["sector"],
-    where: publicJobWhere(now),
+    where: { ...publicJobWhere(now), org: { verificationStatus: "VERIFIED", isDemo: false } },
     _count: { _all: true },
     orderBy: { _count: { sector: "desc" } },
     take: limit,

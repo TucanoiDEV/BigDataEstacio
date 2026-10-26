@@ -77,7 +77,7 @@ test.describe("cookies e privacidade", () => {
   test("páginas legais sinalizam revisão jurídica", async ({ page }) => {
     for (const path of ["/privacidade", "/termos", "/cookies", "/seguranca"]) {
       await page.goto(path);
-      await expect(page.getByText("Minuta — requer revisão jurídica antes da publicação.")).toBeVisible();
+      await expect(page.getByText("Minuta: requer revisão jurídica antes da publicação.")).toBeVisible();
     }
   });
 });

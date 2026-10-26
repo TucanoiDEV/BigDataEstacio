@@ -121,7 +121,7 @@ export const ORG_STATUS_LABEL: Record<OrgVerificationStatus, string> = {
 };
 
 export const VISIBILITY_LABEL: Record<ProfileVisibility, string> = {
-  PRIVATE: "Privado — só empresas para as quais me candidatei",
+  PRIVATE: "Privado: só empresas para as quais me candidatei",
   VERIFIED_COMPANIES: "Visível para recrutadores de empresas verificadas",
 };
 

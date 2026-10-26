@@ -30,7 +30,7 @@ export function ProfileForm({ defaults }: { defaults: ProfileInput }) {
           <TextField form={form} name="name" label="Nome" autoComplete="name" required />
           <TextField form={form} name="headline" label="Título profissional" placeholder="Ex.: Analista de dados" />
           <TextField form={form} name="city" label="Cidade" autoComplete="address-level2" />
-          <SelectField form={form} name="state" label="UF" options={UFS.map((u) => ({ value: u.code, label: `${u.code} — ${u.name}` }))} allowEmpty />
+          <SelectField form={form} name="state" label="UF" options={UFS.map((u) => ({ value: u.code, label: `${u.code} - ${u.name}` }))} allowEmpty />
           <TextField form={form} name="phone" label="Telefone (opcional)" type="tel" autoComplete="tel" hint="Só é compartilhado se você autorizar em cada candidatura." />
           <TextField form={form} name="linkedinUrl" label="LinkedIn (opcional)" type="url" placeholder="https://" />
           <TextField form={form} name="portfolioUrl" label="Portfólio/site (opcional)" type="url" placeholder="https://" className="sm:col-span-2" />

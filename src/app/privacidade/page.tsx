@@ -30,7 +30,7 @@ export default function PrivacyPolicyPage() {
           sob o nº {fill(controller.cnpj, "CNPJ")}, com sede em {fill(controller.address, "endereço completo")}.
         </p>
         <p>
-          Encarregado(a) pelo tratamento de dados pessoais (DPO): {fill(controller.dpoName, "nome do encarregado")} — {fill(controller.dpoEmail, "e-mail do encarregado")}.
+          Encarregado(a) pelo tratamento de dados pessoais (DPO): {fill(controller.dpoName, "nome do encarregado")}, {fill(controller.dpoEmail, "e-mail do encarregado")}.
           Você também pode usar a <Link href="/central-de-privacidade" className="text-primary underline">Central de Privacidade</Link>.
         </p>
       </LegalSection>
@@ -59,7 +59,7 @@ export default function PrivacyPolicyPage() {
             [
               <>Registros de acesso (data, hora, IP){" "}<mark className="rounded bg-amber-100 px-1 text-amber-950">[REVISÃO JURÍDICA: a aplicação hoje guarda o IP apenas pseudonimizado (HMAC); confirmar se é preciso manter o IP em claro, em armazenamento restrito, para atender ao art. 15 do Marco Civil.]</mark></>,
               "Guarda obrigatória de registros de acesso a aplicações",
-              "Cumprimento de obrigação legal (II) — Marco Civil da Internet, art. 15",
+              "Cumprimento de obrigação legal (II): Marco Civil da Internet, art. 15",
             ],
             ["Trilha de auditoria e eventos de segurança", "Segurança, prevenção a fraudes, apuração de incidentes", "Legítimo interesse (IX) e exercício regular de direitos (VI)"],
             ["Cookies necessários", "Sessão e registro das suas escolhas de cookies", "Legítimo interesse (IX) / execução de contrato (V)"],
@@ -82,7 +82,7 @@ export default function PrivacyPolicyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li><strong>Empresas que você escolhe</strong>: somente o recorte confirmado na candidatura. Sua foto não é enviada; e-mail e telefone apenas se você marcar.</li>
           <li><strong>Recrutadores de empresas verificadas</strong>: somente se você ativar “perfil visível para empresas verificadas” (busca de talentos ainda não disponível; hoje o perfil só é visto nas candidaturas).</li>
-          <li><strong>Operadores</strong> que nos prestam serviços: {fill(undefined, "lista de fornecedores — hospedagem, banco de dados, envio de e-mail (SMTP), antivírus, backup, monitoramento")}.</li>
+          <li><strong>Operadores</strong> que nos prestam serviços: {fill(undefined, "lista de fornecedores: hospedagem, banco de dados, envio de e-mail (SMTP), antivírus, backup, monitoramento")}.</li>
           <li><strong>Autoridades</strong>, quando houver obrigação legal ou ordem judicial.</li>
         </ul>
         <p>Não vendemos dados pessoais.</p>
@@ -114,8 +114,8 @@ export default function PrivacyPolicyPage() {
       <LegalSection id="direitos" title="8. Seus direitos (LGPD, art. 18)">
         <p>Você pode, a qualquer momento:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>confirmar a existência de tratamento e acessar seus dados — <Link href="/minha-conta/privacidade" className="text-primary underline">exportação em Minha conta → Privacidade</Link>;</li>
-          <li>corrigir dados incompletos, inexatos ou desatualizados — editando seu perfil;</li>
+          <li>confirmar a existência de tratamento e acessar seus dados, pela <Link href="/minha-conta/privacidade" className="text-primary underline">exportação em Minha conta → Privacidade</Link>;</li>
+          <li>corrigir dados incompletos, inexatos ou desatualizados, editando seu perfil;</li>
           <li>solicitar anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade;</li>
           <li>obter a portabilidade dos dados (arquivo JSON);</li>
           <li>eliminar sua conta e os dados tratados com base no consentimento;</li>

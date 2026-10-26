@@ -48,7 +48,7 @@ export default function CookiesPage() {
       <LegalSection id="gerenciar" title="4. Como gerenciar">
         <p>Você pode aceitar, rejeitar ou personalizar os cookies opcionais e revogar o consentimento a qualquer momento:</p>
         <CookiePreferencesButton className="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90" />
-        <p>Também é possível apagar cookies nas configurações do navegador — nesse caso você precisará entrar novamente.</p>
+        <p>Também é possível apagar cookies nas configurações do navegador. Nesse caso, você precisará entrar novamente.</p>
       </LegalSection>
     </LegalPage>
   );

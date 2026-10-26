@@ -41,7 +41,7 @@ export function ResumeUpload() {
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="resume-label">Nome para identificar (opcional)</Label>
-        <Input id="resume-label" name="label" maxLength={80} placeholder="Ex.: Currículo — Dados" />
+        <Input id="resume-label" name="label" maxLength={80} placeholder="Ex.: Currículo para vagas de dados" />
       </div>
       <Button type="submit" className="h-9" disabled={pending}>
         {pending ? <Loader2 className="animate-spin" /> : <Upload />} Enviar
