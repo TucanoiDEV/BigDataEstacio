@@ -14,14 +14,17 @@ process.env.STORAGE_DIR = "./storage-test";
  * permitindo testar o fluxo real de sessão fora de uma requisição HTTP.
  */
 export const cookieJar = new Map<string, string>();
+/** Opções do último `set` de cada cookie (para conferir expiração). */
+export const cookieOptions = new Map<string, { expires?: Date; maxAge?: number }>();
 
 vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: (name: string) => (cookieJar.has(name) ? { name, value: cookieJar.get(name)! } : undefined),
     has: (name: string) => cookieJar.has(name),
-    set: (name: string, value: string, opts?: { maxAge?: number }) => {
+    set: (name: string, value: string, opts?: { maxAge?: number; expires?: Date }) => {
       if (opts?.maxAge === 0 || value === "") cookieJar.delete(name);
       else cookieJar.set(name, value);
+      cookieOptions.set(name, { expires: opts?.expires, maxAge: opts?.maxAge });
     },
     delete: (name: string) => cookieJar.delete(name),
   }),
