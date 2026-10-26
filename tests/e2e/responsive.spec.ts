@@ -17,4 +17,6 @@ test("menu móvel abre e navega", async ({ page }) => {
   await page.getByRole("button", { name: "Abrir menu" }).click();
   await page.getByRole("navigation", { name: "Menu móvel" }).getByRole("link", { name: "Explorar vagas" }).click();
   await expect(page).toHaveURL(/\/vagas/);
+  await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Abrir menu" })).toBeFocused();
 });

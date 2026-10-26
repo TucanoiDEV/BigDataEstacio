@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart3, Briefcase, Building2, LogIn, Menu, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 
@@ -84,27 +84,34 @@ function MobileNavSheet({ isActive }: { isActive: IsActive }) {
           <ul className="space-y-1">
             {LINKS.map((l) => (
               <li key={l.href}>
-                <Link
-                  href={l.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted",
-                    isActive(l.href) && "bg-secondary text-secondary-foreground",
-                  )}
-                >
-                  <l.icon className="size-4" aria-hidden />
-                  {l.label}
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href={l.href}
+                    aria-current={isActive(l.href) ? "page" : undefined}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted",
+                      isActive(l.href) && "bg-secondary text-secondary-foreground",
+                    )}
+                  >
+                    <l.icon className="size-4" aria-hidden />
+                    {l.label}
+                  </Link>
+                </SheetClose>
               </li>
             ))}
             <li className="pt-3">
-              <Link href="/entrar" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted">
-                <LogIn className="size-4" aria-hidden /> Entrar
-              </Link>
+              <SheetClose asChild>
+                <Link href="/entrar" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted">
+                  <LogIn className="size-4" aria-hidden /> Entrar
+                </Link>
+              </SheetClose>
             </li>
             <li>
-              <Link href="/criar-conta" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted">
-                <UserPlus className="size-4" aria-hidden /> Criar conta
-              </Link>
+              <SheetClose asChild>
+                <Link href="/criar-conta" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-muted">
+                  <UserPlus className="size-4" aria-hidden /> Criar conta
+                </Link>
+              </SheetClose>
             </li>
           </ul>
         </nav>

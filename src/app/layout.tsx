@@ -33,7 +33,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${body.variable} ${display.variable}`}>
+    <html lang="pt-BR" className={`${body.variable} ${display.variable}`} data-scroll-behavior="smooth">
       <body className="flex min-h-dvh flex-col">
         <TooltipProvider delayDuration={200}>
           <ConsentProvider>
