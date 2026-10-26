@@ -185,7 +185,7 @@ export async function getPublicJob(id: string) {
   const job = await db.job.findFirst({
     where: { id, status: { in: ["ACTIVE", "CLOSED", "PAUSED"] }, org: { verificationStatus: "VERIFIED" } },
     include: {
-      org: { select: { id: true, slug: true, tradeName: true, description: true, website: true, sector: true, sizeRange: true, city: true, state: true, logoFileId: true } },
+      org: { select: { id: true, slug: true, tradeName: true, description: true, website: true, sector: true, sizeRange: true, city: true, state: true, logoFileId: true, isDemo: true } },
       skills: { include: { skill: { select: { slug: true, name: true } } }, orderBy: { required: "desc" } },
     },
   });

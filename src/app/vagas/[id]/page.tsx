@@ -50,9 +50,9 @@ const CONTRACT_SCHEMA: Record<string, string> = {
   FREELANCE: "CONTRACTOR",
 };
 
-/** Dados estruturados JobPosting — somente para vagas reais e ativas. */
+/** Dados estruturados JobPosting — somente para vagas reais e ativas (nunca as de demonstração). */
 function JobPostingJsonLd({ job }: { job: NonNullable<Awaited<ReturnType<typeof getPublicJob>>> }) {
-  if (job.status !== "ACTIVE" || !job.publishedAt) return null;
+  if (job.status !== "ACTIVE" || !job.publishedAt || job.org.isDemo) return null;
   const data = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -128,9 +128,10 @@ async function JobContent({ params }: { params: PageProps<"/vagas/[id]">["params
               <h1 className="text-2xl font-bold text-petroleum sm:text-3xl">{job.title}</h1>
               <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
                 <Link href={`/empresas/${job.org.slug}`} className="font-medium text-foreground hover:underline">{job.org.tradeName}</Link>
-                <CheckCircle2 className="size-4 text-primary" aria-label="Empresa verificada" />
+                {!job.org.isDemo && <CheckCircle2 className="size-4 text-primary" aria-label="Empresa verificada" />}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
+                {job.org.isDemo && <JobTag tone="rose">Demonstração — vaga fictícia</JobTag>}
                 <JobTag tone="sky">{CONTRACT_TYPE_LABEL[job.contractType]}</JobTag>
                 <JobTag tone="violet">{WORK_MODEL_LABEL[job.workModel]}</JobTag>
                 <JobTag tone="amber">{SENIORITY_LABEL[job.seniority]}</JobTag>
