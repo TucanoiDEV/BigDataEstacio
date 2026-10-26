@@ -5,6 +5,7 @@ import { BellPlus, Search, SearchX } from "lucide-react";
 import { CardListSkeleton, EmptyState } from "@/components/common/states";
 import { PaginationLinks } from "@/components/common/pagination-links";
 import { JobCard } from "@/components/jobs/job-card";
+import { ExternalJobCard } from "@/components/jobs/external-job-card";
 import { JobFilters } from "@/components/jobs/job-filters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentUser } from "@/server/auth/dal";
@@ -15,7 +16,7 @@ import { jobSearchToParams, parseJobSearch } from "@/lib/validation/search";
 
 export const metadata: Metadata = {
   title: "Explorar vagas",
-  description: "Busque vagas de empresas verificadas por cargo, empresa, cidade, UF, salário, senioridade e modalidade de trabalho.",
+  description: "Busque vagas por cargo, empresa, cidade, UF, salário, senioridade e modalidade de trabalho.",
 };
 
 export default function JobsPage(props: PageProps<"/vagas">) {
@@ -24,7 +25,7 @@ export default function JobsPage(props: PageProps<"/vagas">) {
       <div className="mb-6 rounded-2xl border bg-card p-5 sm:p-7">
         <h1 className="text-2xl font-bold text-petroleum sm:text-3xl">Encontre a vaga certa para você</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Todas as vagas são publicadas por empresas verificadas e passam por moderação contra golpes.
+          Vagas de empresas verificadas na plataforma e de sites oficiais de carreira das empresas, numa busca só.
         </p>
         <Suspense fallback={<Skeleton className="mt-5 h-12 w-full" />}>
           <SearchBar searchParams={props.searchParams} />
@@ -67,8 +68,11 @@ async function SearchBar({ searchParams }: { searchParams: PageProps<"/vagas">["
 async function Results({ searchParams }: { searchParams: PageProps<"/vagas">["searchParams"] }) {
   const filters = parseJobSearch(await searchParams);
   const [result, user] = await Promise.all([searchJobs(filters), getCurrentUser()]);
+  // Só depois dos dados dinâmicos: o Next.js recusa `new Date()` durante a pré-renderização.
   const now = new Date();
-  const saved = user ? await savedJobIds(user.id, result.jobs.map((j) => j.id)) : new Set<string>();
+  const internalIds = result.items.flatMap((i) => (i.kind === "internal" ? [i.job.id] : []));
+  const saved = user ? await savedJobIds(user.id, internalIds) : new Set<string>();
+  const hasExternal = result.items.some((i) => i.kind === "external");
   const hrefFor = (p: number) => {
     const params = jobSearchToParams({ ...filters, pagina: p });
     return `/vagas${params.size ? `?${params}` : ""}`;
@@ -96,7 +100,13 @@ async function Results({ searchParams }: { searchParams: PageProps<"/vagas">["se
             </Link>
           )}
         </div>
-        {result.jobs.length === 0 ? (
+        {hasExternal && (
+          <p role="note" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+            Vagas marcadas como <strong>Vaga externa</strong> vêm dos sites de carreira das empresas: a candidatura acontece no
+            site de origem, e a Emprego Agora não verifica essas empresas. Desconfie de qualquer pedido de pagamento.
+          </p>
+        )}
+        {result.items.length === 0 ? (
           <EmptyState
             icon={SearchX}
             title="Nenhuma vaga corresponde aos filtros"
@@ -106,9 +116,13 @@ async function Results({ searchParams }: { searchParams: PageProps<"/vagas">["se
         ) : (
           <div className="space-y-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {result.jobs.map((job) => (
-                <JobCard key={job.id} job={job} now={now} canSave={Boolean(user)} saved={saved.has(job.id)} />
-              ))}
+              {result.items.map((item) =>
+                item.kind === "internal" ? (
+                  <JobCard key={item.job.id} job={item.job} now={now} canSave={Boolean(user)} saved={saved.has(item.job.id)} />
+                ) : (
+                  <ExternalJobCard key={item.job.id} job={item.job} now={now} />
+                ),
+              )}
             </div>
             <PaginationLinks page={result.page} pages={result.pages} hrefFor={hrefFor} />
           </div>

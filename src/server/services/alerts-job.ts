@@ -41,13 +41,19 @@ export async function runJobAlerts(now = new Date()) {
     }
     try {
       const result = await searchJobs({ ...parsed.data, ordem: "recent", pagina: 1 }, 10, { publishedAfter: last });
-      if (result.jobs.length > 0) {
+      if (result.items.length > 0) {
         const base = env().APP_URL;
+        // Vagas da plataforma abrem a página interna; as externas, o site de origem.
+        const jobs = result.items.map((i) =>
+          i.kind === "internal"
+            ? { title: i.job.title, org: i.job.org.tradeName, url: new URL(`/vagas/${i.job.id}`, base).toString() }
+            : { title: i.job.title, org: i.job.companyName, url: i.job.url },
+        );
         await notify({
           userId: alert.user.id,
           type: "JOB_ALERT",
           title: `${result.total} nova(s) vaga(s): ${alert.name}`,
-          body: result.jobs.slice(0, 3).map((j) => j.title).join(" · "),
+          body: jobs.slice(0, 3).map((j) => j.title).join(" · "),
           link: "/minha-conta/alertas",
         });
         if (alert.user.commPreference?.emailJobAlerts ?? true) {
@@ -55,7 +61,7 @@ export async function runJobAlerts(now = new Date()) {
             mail.jobAlert(
               alert.user.email,
               alert.name,
-              result.jobs.map((j) => ({ title: j.title, org: j.org.tradeName, url: new URL(`/vagas/${j.id}`, base).toString() })),
+              jobs,
               new URL("/minha-conta/alertas", base).toString(),
             ),
           );
