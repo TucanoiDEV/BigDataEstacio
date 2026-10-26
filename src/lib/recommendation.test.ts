@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { scoreJob, yearsOfExperience, type RecJob, type RecProfile } from "@/lib/recommendation";
+import { isSparseProfile, scoreJob, yearsOfExperience, type RecJob, type RecProfile } from "@/lib/recommendation";
 
 const profile: RecProfile = {
   skills: ["react", "typescript", "git"],
@@ -38,6 +38,15 @@ describe("recomendação explicável", () => {
     expect(r.score).toBeGreaterThanOrEqual(80);
     expect(r.reasons.join(" ")).toMatch(/2 de 3 competências exigidas/);
     expect(r.gaps.join(" ")).toMatch(/Docker/);
+  });
+
+  it("perfil sem competências não recebe '0 de N' como motivo positivo", () => {
+    const empty: RecProfile = { ...profile, skills: [], desiredTitle: null, desiredSectors: [] };
+    const r = scoreJob(empty, job);
+    expect(r.reasons.join(" ")).not.toMatch(/competências exigidas/);
+    expect(r.gaps.join(" ")).toMatch(/React/);
+    expect(isSparseProfile(empty)).toBe(true);
+    expect(isSparseProfile(profile)).toBe(false);
   });
 
   it("modalidade e contratação fora da preferência reduzem a pontuação", () => {

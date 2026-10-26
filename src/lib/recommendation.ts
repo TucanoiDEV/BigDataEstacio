@@ -26,6 +26,11 @@ export type RecProfile = {
   yearsExperience: number;
 };
 
+/** Sem competências nem interesses declarados, a recomendação fica genérica. */
+export function isSparseProfile(p: RecProfile): boolean {
+  return p.skills.length === 0 && !p.desiredTitle && p.desiredSectors.length === 0;
+}
+
 export type RecJob = {
   title: string;
   sector: string;
@@ -80,9 +85,10 @@ export function scoreJob(profile: RecProfile, job: RecJob): RecResult {
     const optRatio = optional.length ? optHit.length / optional.length : reqRatio;
     b.skills = WEIGHTS.skills * (0.75 * reqRatio + 0.25 * optRatio);
     const hits = [...reqHit, ...optHit];
-    if (required.length) {
-      reasons.push(`Você tem ${reqHit.length} de ${required.length} competências exigidas${reqHit.length ? ` (${listNames(reqHit.map((s) => s.name))})` : ""}.`);
-    } else if (hits.length) {
+    // Nenhuma competência exigida em comum não é motivo de recomendação: aparece só como lacuna.
+    if (reqHit.length) {
+      reasons.push(`Você tem ${reqHit.length} de ${required.length} competências exigidas (${listNames(reqHit.map((s) => s.name))}).`);
+    } else if (!required.length && hits.length) {
       reasons.push(`Competências em comum: ${listNames(hits.map((s) => s.name))}.`);
     }
     const missing = required.filter((s) => !have.has(s.slug));
