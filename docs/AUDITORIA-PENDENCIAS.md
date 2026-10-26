@@ -1,8 +1,8 @@
 # Auditoria técnica — triagem e pendências
 
-Atualizado em 26/10/2026. Origem: auditoria externa de 26/10/2026 sobre a revisão `5c6429c` (main), com testes na interface local, suítes automatizadas e revisão estática.
+Atualizado em 26/10/2026 (itens 🔴 e 🟠 concluídos, além do #9). Origem: auditoria externa de 26/10/2026 sobre a revisão `5c6429c` (main), com testes na interface local, suítes automatizadas e revisão estática.
 
-Todos os achados foram conferidos contra a branch `feat/emprego-agora` e **continuam válidos** no código atual.
+Todos os achados foram conferidos contra a branch `feat/emprego-agora`. Os corrigidos estão marcados com ✅ e cobertos por [tests/integration/audit-regressions.test.ts](../tests/integration/audit-regressions.test.ts) e por testes unitários.
 
 Legenda: 🔴 aplicar agora · 🟠 aplicar agora, depende de decisão · 🟡 próxima rodada · ⏳ futuro · ✅ concluído.
 
@@ -12,25 +12,25 @@ Legenda: 🔴 aplicar agora · 🟠 aplicar agora, depende de decisão · 🟡 p
 - **Não executado pela auditoria:** integração com PostgreSQL, E2E completo, SMTP/ClamAV reais, concorrência, backups e carga.
 - **Testes diagnósticos que falharam (4):** `q` repetido lança ZodError; vaga pausada com PAYMENT_REQUEST volta como ACTIVE ao retomar; falha na notificação já avançou `lastSentAt`; falha SMTP é contada em `sent`.
 
-## 🔴 Aplicar agora
+## ✅ Concluído (antes 🔴 Aplicar agora)
 
 | # | Achado | Onde | Correção acordada | Aceite |
 |---|---|---|---|---|
-| 1 | Retomar vaga pausada contorna a moderação | [jobs.ts](../src/server/services/jobs.ts) `changeJobLifecycle` | Ler `fraudSignals` antes de retomar; se houver sinais, ir para `PENDING_REVIEW` e chamar `warnModeration` | Pausar → editar com sinal → salvar → retomar retém a vaga; sem sinais retoma normalmente |
-| 3 | Parâmetro repetido (`?q=a&q=b`) derruba `/vagas` | [validation/search.ts](../src/lib/validation/search.ts) `optionalString` / `parseJobSearch` | Normalizar array → primeiro valor; `safeParse` com fallback para filtros vazios | Parâmetros repetidos, vazios, longos e desconhecidos não causam erro de renderização (`q`, `city`, `empresa`) |
-| 11 | "Áreas em alta" conta vagas expiradas | [services/search.ts](../src/server/services/search.ts) `trendingSectors` | Reutilizar a condição pública comum (inclui `closesAt`) | Vaga ACTIVE com `closesAt` no passado não entra nos contadores |
-| 7 | "Salvar rascunho" altera vaga pública | [job-form.tsx](../src/components/company/job-form.tsx) | Rótulo por status: "Salvar alterações" + aviso quando ACTIVE | Texto e comportamento coincidem em DRAFT, ACTIVE, PAUSED e PENDING_REVIEW |
-| 2 | Alertas perdem entregas após falha (versão mínima) | [alerts-job.ts](../src/server/services/alerts-job.ts) | Avançar `lastSentAt` só após a notificação; tratar retorno de `sendMailSafe` e contar `emailFailed` separadamente | Falha na notificação não avança o cursor; falha SMTP não conta como envio |
-| 10 | Renovação da sessão não renova o cookie | [session.ts](../src/server/auth/session.ts) | Cookie com validade igual ao teto absoluto (90 dias); o banco segue como autoridade da expiração deslizante | Teste com relógio simulado comparando banco, Set-Cookie e teto absoluto |
-| — | Retirada de candidatura sem atomicidade | [applications.ts](../src/server/services/applications.ts) (~L145) | Envolver status + histórico em `db.$transaction` | Falha na segunda gravação reverte as duas |
-| — | Recomendação para perfil vazio ("0 de 4" com marca positiva) | Recomendações (UI) | Exibir "Complete seu perfil para melhorar as sugestões"; separar compatibilidades de lacunas | Perfil 0% não mostra marca positiva |
+| 1 ✅ | Retomar vaga pausada contorna a moderação | [jobs.ts](../src/server/services/jobs.ts) `changeJobLifecycle` | Ler `fraudSignals` antes de retomar; se houver sinais, ir para `PENDING_REVIEW` e chamar `warnModeration` | Pausar → editar com sinal → salvar → retomar retém a vaga; sem sinais retoma normalmente |
+| 3 ✅ | Parâmetro repetido (`?q=a&q=b`) derruba `/vagas` | [validation/search.ts](../src/lib/validation/search.ts) `optionalString` / `parseJobSearch` | Normalizar array → primeiro valor; `safeParse` com fallback para filtros vazios | Parâmetros repetidos, vazios, longos e desconhecidos não causam erro de renderização (`q`, `city`, `empresa`) |
+| 11 ✅ | "Áreas em alta" conta vagas expiradas | [services/search.ts](../src/server/services/search.ts) `trendingSectors` | Reutilizar a condição pública comum (inclui `closesAt`) | Vaga ACTIVE com `closesAt` no passado não entra nos contadores |
+| 7 ✅ | "Salvar rascunho" altera vaga pública | [job-form.tsx](../src/components/company/job-form.tsx) | Rótulo por status: "Salvar alterações" + aviso quando ACTIVE | Texto e comportamento coincidem em DRAFT, ACTIVE, PAUSED e PENDING_REVIEW |
+| 2 ✅ | Alertas perdem entregas após falha (versão mínima) | [alerts-job.ts](../src/server/services/alerts-job.ts) | Avançar `lastSentAt` só após a notificação; tratar retorno de `sendMailSafe` e contar `emailFailed` separadamente | Falha na notificação não avança o cursor; falha SMTP não conta como envio |
+| 10 ✅ | Renovação da sessão não renova o cookie | [session.ts](../src/server/auth/session.ts) | Cookie com validade igual ao teto absoluto (90 dias); o banco segue como autoridade da expiração deslizante | Teste com relógio simulado comparando banco, Set-Cookie e teto absoluto |
+| ✅ | Retirada de candidatura sem atomicidade | [applications.ts](../src/server/services/applications.ts) (~L145) | Envolver status + histórico em `db.$transaction` | Falha na segunda gravação reverte as duas |
+| ✅ | Recomendação para perfil vazio ("0 de 4" com marca positiva) | Recomendações (UI) | Exibir "Complete seu perfil para melhorar as sugestões"; separar compatibilidades de lacunas | Perfil 0% não mostra marca positiva |
 
-## 🟠 Depende de decisão
+## ✅ Decisões tomadas e aplicadas (antes 🟠)
 
-| # | Achado | Opções | Recomendação |
-|---|---|---|---|
-| 5 | Filtro "a partir de R$ X" compara o teto da faixa | (a) comparar o piso; (b) manter e mudar o rótulo para "faixa que alcança" | (a) `COALESCE(salaryMin, salaryMax) >= X`, com testes para faixa abaixo, acima, cruzando e salário não divulgado |
-| 8 | Domínio/contato da empresa mudam sem revalidação | (a) voltar para PENDING; (b) só avisar a moderação; (c) manter versão validada pública até revisão | (a) apenas quando `website` ou `contactEmail` mudarem; campos descritivos seguem livres |
+| # | Achado | Decisão aplicada |
+|---|---|---|
+| 5 ✅ | Filtro "a partir de R$ X" comparava o teto da faixa | Compara o piso: `COALESCE(salaryMin, salaryMax) >= X`. Faixas que só cruzam o valor deixam de aparecer |
+| 8 ✅ | Domínio/contato da empresa mudavam sem revalidação | Empresa VERIFIED volta para PENDING quando muda o **domínio** do site (`www.` e caminho são ignorados) ou o e-mail de contato. A moderação é notificada, e o formulário e a mensagem de retorno avisam que as vagas saem do ar até a aprovação. Campos descritivos seguem livres |
 
 ## 🟡 Próxima rodada (esforço médio)
 
@@ -39,7 +39,8 @@ Legenda: 🔴 aplicar agora · 🟠 aplicar agora, depende de decisão · 🟡 p
 | 6 | No celular, filtros empurram o primeiro card para ~1.340 px | Painel "Filtros" recolhível com contador de ativos; busca, total e ordenação junto aos cards; filtros preservados na URL; foco restaurado ao fechar |
 | 12 | Menu móvel mostra "Entrar"/"Criar conta" com sessão ativa | `MobileNav` (client) recebe o usuário do `site-header`; exibir "Minha conta", "Candidaturas" e área da empresa conforme acesso; traduzir "Close" → "Fechar" no componente `sheet` |
 | 4 | Busca de cidade depende de acentos ("Sao Paulo" ≠ "São Paulo") | Migration com extensão `unaccent` ou coluna `cityNormalized`; normalizar os dois lados e espaços |
-| 9 | Renomear empresa deixa `Job.searchText` desatualizado | Em `updateOrganization`, quando `tradeName` mudar, reconstruir `searchText` das vagas da empresa |
+
+**Também concluído:** #9 ✅. Ao renomear a empresa, `updateOrganization` reconstrói o `searchText` de todas as vagas dela na mesma transação.
 
 ## ⏳ Futuro
 
@@ -68,8 +69,8 @@ ClamAV real, retenção e limpeza, monitoramento, backups testados, revisão jur
 
 ## Ordem sugerida
 
-1. Itens 🔴, cada um com teste cobrindo o caso da auditoria.
-2. Decisões 🟠 e implementação.
+1. ~~Itens 🔴, cada um com teste cobrindo o caso da auditoria.~~ ✅
+2. ~~Decisões 🟠 e implementação.~~ ✅
 3. Itens 🟡 (mobile primeiro: 6 e 12).
 4. Bloco ⏳ de robustez, junto com a suíte de integração em PostgreSQL.
 5. Produto e preparação de produção.
