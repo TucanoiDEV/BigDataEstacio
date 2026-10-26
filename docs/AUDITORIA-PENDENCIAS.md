@@ -1,6 +1,6 @@
 # Auditoria técnica — triagem e pendências
 
-Atualizado em 26/10/2026 (itens 🔴 e 🟠 concluídos, além do #9). Origem: auditoria externa de 26/10/2026 sobre a revisão `5c6429c` (main), com testes na interface local, suítes automatizadas e revisão estática.
+Atualizado em 26/10/2026 (itens 🔴, 🟠 e 🟡 concluídos, além do #4 e do #9; segunda rodada de robustez). Origem: auditoria externa de 26/10/2026 sobre a revisão `5c6429c` (main), com testes na interface local, suítes automatizadas e revisão estática.
 
 Todos os achados foram conferidos contra a branch `feat/emprego-agora`. Os corrigidos estão marcados com ✅ e cobertos por [tests/integration/audit-regressions.test.ts](../tests/integration/audit-regressions.test.ts) e por testes unitários.
 
@@ -32,12 +32,12 @@ Legenda: 🔴 aplicar agora · 🟠 aplicar agora, depende de decisão · 🟡 p
 | 5 ✅ | Filtro "a partir de R$ X" comparava o teto da faixa | Compara o piso: `COALESCE(salaryMin, salaryMax) >= X`. Faixas que só cruzam o valor deixam de aparecer |
 | 8 ✅ | Domínio/contato da empresa mudavam sem revalidação | Empresa VERIFIED volta para PENDING quando muda o **domínio** do site (`www.` e caminho são ignorados) ou o e-mail de contato. A moderação é notificada, e o formulário e a mensagem de retorno avisam que as vagas saem do ar até a aprovação. Campos descritivos seguem livres |
 
-## 🟡 Próxima rodada (esforço médio)
+## ✅ Concluído na segunda rodada (antes 🟡)
 
 | # | Achado | Abordagem |
 |---|---|---|
-| 6 | No celular, filtros empurram o primeiro card para ~1.340 px | Painel "Filtros" recolhível com contador de ativos; busca, total e ordenação junto aos cards; filtros preservados na URL; foco restaurado ao fechar |
-| 12 | Menu móvel mostra "Entrar"/"Criar conta" com sessão ativa | `MobileNav` (client) recebe o usuário do `site-header`; exibir "Minha conta", "Candidaturas" e área da empresa conforme acesso; traduzir "Close" → "Fechar" no componente `sheet` |
+| 6 ✅ | No celular, filtros empurravam o primeiro card para ~1.340 px | Painel recolhível com contador de filtros ativos; no celular, aplica só em "Aplicar filtros" e volta ao topo. Primeiro card agora a ~667 px (Pixel 7). Teste E2E em `responsive.spec.ts` |
+| 12 ✅ | Menu móvel mostrava "Entrar"/"Criar conta" com sessão ativa | O menu móvel vem do `UserMenu` (servidor): visitante vê entrar/criar conta; com sessão, conta, candidaturas, empresas, administração e "Sair". "Close" traduzido para "Fechar". Teste E2E |
 | 4 ✅ | Busca de cidade dependia de acentos ("Sao Paulo" ≠ "São Paulo") | Resolvido na busca unificada: a cidade é comparada sem acento e sem caixa nas duas origens (`translate`/`cityNormalized`). O autocomplete com código IBGE continua como evolução |
 
 **Também concluído:** #9 ✅. Ao renomear a empresa, `updateOrganization` reconstrói o `searchText` de todas as vagas dela na mesma transação.
@@ -47,14 +47,14 @@ Legenda: 🔴 aplicar agora · 🟠 aplicar agora, depende de decisão · 🟡 p
 ### Robustez e concorrência (validar com PostgreSQL real / integração)
 
 - **Alertas — versão completa:** outbox transacional, tentativas com atraso, chave de idempotência, estado de entrega por canal e bloqueio de execução concorrente do mesmo alerta. "Último envio" exibido só quando corresponder ao canal.
-- **Exclusão de conta:** hoje os arquivos são apagados antes da anonimização ([privacy.ts](../src/server/services/privacy.ts) ~L117). Usar estado de exclusão e fila idempotente; verificar também logos de organização enviados pelo usuário.
-- **Empresa sem proprietário:** `ownerCount` é consultado e o vínculo alterado depois, sem serialização. Testar dois proprietários saindo ao mesmo tempo.
-- **Convites:** o aceite só condiciona `acceptedAt = null`; incluir `revokedAt` e `expiresAt` na escrita transacional.
+- ✅ **Exclusão de conta:** conferência de propriedade, anonimização e marcação dos arquivos numa transação; arquivos removidos do disco só depois de confirmada. Logo de empresa em uso é preservado (perde só o vínculo com a pessoa). ~~Antes: os arquivos eram apagados antes da anonimização ([privacy.ts](../src/server/services/privacy.ts) ~L117). Usar estado de exclusão e fila idempotente; verificar também logos de organização enviados pelo usuário.~~
+- ✅ **Empresa sem proprietário:** alterações de vínculos (e a exclusão de conta) travam a linha da empresa (`FOR UPDATE`) e contam proprietários dentro da transação. Teste com 6 proprietários saindo ao mesmo tempo: no código antigo todos saíam; agora sempre resta um.
+- ✅ **Convites:** o aceite condiciona `acceptedAt`, `revokedAt` e `expiresAt` na mesma gravação. Teste de aceite e revogação simultâneos (no código antigo, o convite ficava aceito e revogado ao mesmo tempo).
 - **IP para rate limiting:** [request.ts](../src/server/security/request.ts) confia em cabeçalhos encaminhados; validar contra o proxy real e cabeçalhos forjados.
 - **Recomendações limitadas às 300 vagas mais recentes:** pré-filtrar candidatos por critérios relevantes antes do score (só relevante com volume real).
 - **Versão de rascunho separada da publicada** (evolução do item 7).
 - **Autocomplete de município com código IBGE + UF** (evolução do item 4) e opção explícita para incluir vagas remotas ao filtrar UF.
-- Campo de encerramento (`closesAt`) no formulário de vaga — já listado como pendente em [STATUS.md](STATUS.md).
+- ✅ Campo de encerramento (`closesAt`) no formulário de vaga: data opcional (até o fim do dia, horário de Brasília), entre hoje e um ano; pode ser removida na edição.
 
 ### Produto
 
@@ -71,6 +71,6 @@ ClamAV real, retenção e limpeza, monitoramento, backups testados, revisão jur
 
 1. ~~Itens 🔴, cada um com teste cobrindo o caso da auditoria.~~ ✅
 2. ~~Decisões 🟠 e implementação.~~ ✅
-3. Itens 🟡 (mobile primeiro: 6 e 12).
+3. ~~Itens 🟡 (mobile primeiro: 6 e 12).~~ ✅
 4. Bloco ⏳ de robustez, junto com a suíte de integração em PostgreSQL.
 5. Produto e preparação de produção.
