@@ -8,7 +8,7 @@ import { invalidateAllSessions } from "@/server/auth/session";
 import { verifyPassword } from "@/server/security/password";
 import { enforceRateLimits } from "@/server/security/rate-limit";
 import type { RequestContext } from "@/server/security/request";
-import { deleteStoredFile } from "@/server/storage/files";
+import { removeStoredContents } from "@/server/storage/files";
 import { sendMailSafe } from "@/server/mail/mailer";
 import { mail } from "@/server/mail/templates";
 import { notifyMany, platformAdminIds } from "@/server/services/notifications";
@@ -109,16 +109,24 @@ export async function deleteAccount(userId: string, password: string, ctx: Reque
   });
   if (!(await verifyPassword(user.passwordHash, password))) throw invalid("Senha incorreta.");
   if (user.platformRole === "PLATFORM_ADMIN") throw conflict("Contas de administração devem ser desativadas por outro administrador.");
-  for (const m of user.memberships) {
-    const owners = await db.orgMembership.count({ where: { orgId: m.orgId, role: "OWNER" } });
-    if (owners <= 1) throw conflict("Você é o(a) único(a) proprietário(a) de uma empresa. Transfira a propriedade antes de excluir a conta.");
-  }
 
-  const files = await db.storedFile.findMany({ where: { ownerUserId: userId, deletedAt: null }, select: { id: true } });
-  for (const f of files) await deleteStoredFile(f.id);
-
+  // Ordem: (1) tudo no banco numa transação — conferência de propriedade, anonimização e marcação
+  // dos arquivos como excluídos; (2) só depois de confirmada, remoção dos arquivos do disco.
+  // Uma falha no meio desfaz a transação e mantém a conta intacta, com os arquivos.
   const anonymizedEmail = `excluido+${randomBytes(8).toString("hex")}@anonimo.invalid`;
-  await db.$transaction(async (tx) => {
+  const storageKeys = await db.$transaction(async (tx) => {
+    // Mesma trava das alterações de vínculos (organizations.ts): nunca sobram zero proprietários(as).
+    for (const m of user.memberships) {
+      await tx.$queryRaw`SELECT 1 FROM "Organization" WHERE "id" = ${m.orgId} FOR UPDATE`;
+      const owners = await tx.orgMembership.count({ where: { orgId: m.orgId, role: "OWNER" } });
+      if (owners <= 1) throw conflict("Você é o(a) único(a) proprietário(a) de uma empresa. Transfira a propriedade antes de excluir a conta.");
+    }
+
+    // Logo em uso pertence à empresa, não à pessoa: só perde o vínculo com quem enviou.
+    await tx.storedFile.updateMany({ where: { ownerUserId: userId, deletedAt: null, orgLogo: { isNot: null } }, data: { ownerUserId: null } });
+    const files = await tx.storedFile.findMany({ where: { ownerUserId: userId, deletedAt: null }, select: { storageKey: true } });
+    await tx.storedFile.updateMany({ where: { ownerUserId: userId, deletedAt: null }, data: { deletedAt: new Date() } });
+
     // Candidaturas em andamento são retiradas; o recorte de perfil é apagado.
     const open = await tx.application.findMany({ where: { candidateUserId: userId, status: { in: ["SUBMITTED", "IN_REVIEW", "INTERVIEW"] } }, select: { id: true, status: true } });
     for (const a of open) {
@@ -147,7 +155,10 @@ export async function deleteAccount(userId: string, password: string, ctx: Reque
         emailVerifiedAt: null,
       },
     });
+    return files.map((f) => f.storageKey);
   });
+  const failed = await removeStoredContents(storageKeys);
+  if (failed.length) console.error("[privacy] arquivos marcados como excluídos, mas não removidos do disco:", failed.length);
   await invalidateAllSessions(userId);
   await audit({ actorUserId: userId, action: "privacy.account_deleted", ipHash: ctx.ipHash });
 }
