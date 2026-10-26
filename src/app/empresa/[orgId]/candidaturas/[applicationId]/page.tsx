@@ -96,7 +96,7 @@ async function Detail({ params }: { params: PageProps<"/empresa/[orgId]/candidat
               <h3 className="mt-6 text-sm font-semibold">Formação</h3>
               {s.educations.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma informada.</p> : (
                 <ul className="mt-2 space-y-2 text-sm">
-                  {s.educations.map((e, i) => <li key={i}><span className="font-medium">{e.degree}</span>{e.field ? ` — ${e.field}` : ""} · {e.institution} {e.inProgress ? "(em andamento)" : e.endDate ? `(${ym(e.endDate)})` : ""}</li>)}
+                  {s.educations.map((e, i) => <li key={i}><span className="font-medium">{e.degree}</span>{e.field ? `, ${e.field}` : ""} · {e.institution} {e.inProgress ? "(em andamento)" : e.endDate ? `(${ym(e.endDate)})` : ""}</li>)}
                 </ul>
               )}
               <p className="mt-4 text-xs text-muted-foreground">Recorte do perfil compartilhado pelo(a) candidato(a) em {formatDateTime(s.capturedAt)}.</p>

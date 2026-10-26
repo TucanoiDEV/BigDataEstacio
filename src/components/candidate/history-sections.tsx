@@ -124,7 +124,7 @@ export function EducationSection({ items }: { items: Edu[] }) {
           {items.map((e) => (
             <li key={e.id} className="flex items-start justify-between gap-3 py-3">
               <div className="min-w-0">
-                <p className="font-medium">{e.degree}{e.field ? ` — ${e.field}` : ""}</p>
+                <p className="font-medium">{e.degree}{e.field ? `, ${e.field}` : ""}</p>
                 <p className="text-sm text-muted-foreground">{e.institution}</p>
                 <p className="text-xs text-muted-foreground">{e.inProgress ? "Em andamento" : e.endDate ? `Concluído em ${fmtMonth(e.endDate)}` : ""}</p>
               </div>

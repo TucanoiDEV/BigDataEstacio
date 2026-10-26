@@ -49,7 +49,7 @@ async function List({ searchParams }: { searchParams: PageProps<"/admin/empresas
     <div className="space-y-4">
       <nav aria-label="Filtrar por status" className="flex flex-wrap gap-2">
         {FILTERS.map((f) => (
-          <Link key={f.key} href={`/admin/empresas?status=${f.key}`} aria-current={f.key === status ? "page" : undefined} className={`rounded-full border px-3 py-1 text-sm ${f.key === status ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}>{f.label}</Link>
+          <Link key={f.key} href={`/admin/empresas?status=${f.key}`} aria-current={f.key === status ? "page" : undefined} className={`rounded-md border px-3 py-1 text-sm ${f.key === status ? "border-primary bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}>{f.label}</Link>
         ))}
       </nav>
       {orgs.length === 0 ? <EmptyState icon={Building2} title="Nada nesta fila" /> : (
@@ -74,7 +74,7 @@ async function List({ searchParams }: { searchParams: PageProps<"/admin/empresas
                     <dd className="inline">{o.website ? <a href={o.website} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 text-primary hover:underline">{siteHost} <ExternalLink className="size-3" aria-hidden /></a> : "não informado"}</dd>
                   </div>
                   <div><dt className="inline text-muted-foreground">Domínio do e-mail confere com o site: </dt><dd className={`inline font-medium ${domainMatch ? "text-emerald-700" : "text-amber-800"}`}>{domainMatch ? "sim" : "não"}</dd></div>
-                  <div><dt className="inline text-muted-foreground">Local: </dt><dd className="inline">{[o.city, o.state].filter(Boolean).join("/") || "—"}</dd></div>
+                  <div><dt className="inline text-muted-foreground">Local: </dt><dd className="inline">{[o.city, o.state].filter(Boolean).join("/") || "Não informado"}</dd></div>
                   <div><dt className="inline text-muted-foreground">Cadastro: </dt><dd className="inline">{formatDate(o.createdAt)} · {o._count.jobs} vaga(s) · {o._count.reports} denúncia(s)</dd></div>
                   {o.members.map((m) => (
                     <div key={m.user.email}><dt className="inline text-muted-foreground">Responsável: </dt><dd className="inline">{m.user.name} ({m.user.email}{m.user.emailVerifiedAt ? ", e-mail verificado" : ", e-mail NÃO verificado"})</dd></div>

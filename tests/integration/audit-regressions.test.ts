@@ -5,7 +5,7 @@ import * as apps from "@/server/services/applications";
 import * as orgs from "@/server/services/organizations";
 import { createAlert } from "@/server/services/saved-and-alerts";
 import { runJobAlerts } from "@/server/services/alerts-job";
-import { searchJobs, trendingSectors } from "@/server/services/search";
+import { publicJobStats, searchJobs, trendingSectors } from "@/server/services/search";
 import { createSession, SESSION_ABSOLUTE_MAX_MS } from "@/server/auth/session";
 import { parseJobSearch } from "@/lib/validation/search";
 import { cookieOptions } from "../support/integration-env";
@@ -140,6 +140,18 @@ describe("regressões da auditoria (26/10/2026)", () => {
     const access = await accessFor(owner, (await createOrg(owner)).id);
     const job = await jobs.createJob(access, JOB_INPUT);
     await db.job.update({ where: { id: job.id }, data: { closesAt: new Date(Date.now() - 86400_000) } });
+    expect(await trendingSectors()).toEqual([]);
+  });
+
+  it("vagas de demonstração não entram nas contagens públicas", async () => {
+    const owner = await createUser();
+    const org = await createOrg(owner);
+    const job = await jobs.createJob(await accessFor(owner, org.id), JOB_INPUT);
+    await db.job.update({ where: { id: job.id }, data: { status: "ACTIVE" } });
+    expect((await publicJobStats()).jobs).toBe(1);
+    expect(await trendingSectors()).toHaveLength(1);
+    await db.organization.update({ where: { id: org.id }, data: { isDemo: true } });
+    expect(await publicJobStats()).toEqual({ jobs: 0, companies: 0, states: 0 });
     expect(await trendingSectors()).toEqual([]);
   });
 

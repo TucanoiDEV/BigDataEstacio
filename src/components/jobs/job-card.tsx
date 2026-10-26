@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock, MapPin } from "lucide-react";
+import { Check, Clock, MapPin } from "lucide-react";
 import { OrgLogo } from "@/components/jobs/org-logo";
 import { SaveJobButton } from "@/components/jobs/save-job-button";
 import { CONTRACT_TYPE_LABEL, SENIORITY_LABEL, WORK_MODEL_LABEL } from "@/lib/constants";
@@ -22,7 +22,7 @@ export function JobCard({ job, now, saved, canSave, reasons }: { job: JobCardDat
   const salary = job.salaryVisible ? formatSalaryRange(job.salaryMin, job.salaryMax) : null;
   const location = job.workModel === "REMOTE" ? "Remoto" : [job.city, job.state].filter(Boolean).join(" – ");
   return (
-    <article className="group relative flex min-w-0 flex-col rounded-xl border bg-card p-5 shadow-[0_1px_2px_rgba(11,59,70,0.04)] transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+    <article className="group relative flex min-w-0 flex-col rounded-xl border bg-card p-5 shadow-[0_1px_2px_rgba(11,59,70,0.04)] transition-colors hover:border-primary/40">
       <div className="flex items-start gap-3">
         <OrgLogo name={job.org.tradeName} fileId={job.org.logoFileId} />
         <div className="min-w-0 flex-1">
@@ -49,7 +49,7 @@ export function JobCard({ job, now, saved, canSave, reasons }: { job: JobCardDat
         <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
           {reasons.slice(0, 2).map((r) => (
             <li key={r} className="flex gap-1.5">
-              <span className="text-primary" aria-hidden>✓</span> {r}
+              <Check className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden /> {r}
             </li>
           ))}
         </ul>

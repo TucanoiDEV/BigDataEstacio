@@ -22,7 +22,7 @@ export async function generateMetadata(props: PageProps<"/empresas/[slug]">): Pr
   const { slug } = await props.params;
   const org = await getOrg(slug);
   if (!org) return { title: "Empresa não encontrada", robots: { index: false } };
-  return { title: `${org.tradeName} — vagas e perfil`, description: org.description?.slice(0, 160) ?? `Vagas abertas em ${org.tradeName}.` };
+  return { title: `${org.tradeName}: vagas e perfil`, description: org.description?.slice(0, 160) ?? `Vagas abertas em ${org.tradeName}.` };
 }
 
 export default function CompanyPage(props: PageProps<"/empresas/[slug]">) {

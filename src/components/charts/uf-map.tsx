@@ -14,7 +14,7 @@ export function UfMap(props: { shapes: MapShape[]; viewBox: string; bins: { labe
   return (
     <ChartFrame
       title="Saldo acumulado por UF"
-      subtitle={`Comparação territorial — ${props.period}. Clique em uma UF para filtrar o painel.`}
+      subtitle={`Comparação territorial em ${props.period}. Clique em uma UF para filtrar o painel.`}
       table={{ headers: ["UF", "Admissões", "Desligamentos", "Saldo"], rows: sorted.map((s) => [`${s.name} (${s.abbr})`, s.admissions, s.separations, s.value]) }}
       footer={
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1" aria-label="Legenda de cores">

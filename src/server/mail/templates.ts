@@ -15,7 +15,7 @@ type Block = { kind: "p"; text: string } | { kind: "button"; label: string; url:
 function render(to: string, subject: string, blocks: Block[]): MailMessage {
   const text = blocks
     .map((b) => (b.kind === "button" ? `${b.label}: ${b.url}` : b.text))
-    .concat(["", "— Emprego Agora", "Você recebeu este e-mail por causa da sua conta no Emprego Agora."])
+    .concat(["", "Equipe Emprego Agora", "Você recebeu este e-mail por causa da sua conta no Emprego Agora."])
     .join("\n\n");
 
   const body = blocks
@@ -54,7 +54,7 @@ export const mail = {
     render(to, "Redefinição de senha", [
       { kind: "p", text: "Recebemos um pedido para redefinir a senha da sua conta." },
       { kind: "button", label: "Redefinir senha", url },
-      { kind: "small", text: "O link expira em 1 hora e só pode ser usado uma vez. Se você não pediu, ignore este e-mail — sua senha continua a mesma." },
+      { kind: "small", text: "O link expira em 1 hora e só pode ser usado uma vez. Se você não pediu, ignore este e-mail. Sua senha continua a mesma." },
     ]),
 
   passwordChanged: (to: string) =>
@@ -79,7 +79,7 @@ export const mail = {
   jobAlert: (to: string, alertName: string, jobs: { title: string; org: string; url: string }[], manageUrl: string) =>
     render(to, `${jobs.length} nova(s) vaga(s) para "${alertName}"`, [
       { kind: "p", text: `Encontramos vagas novas que combinam com o seu alerta "${alertName}":` },
-      ...jobs.slice(0, 10).map((j) => ({ kind: "p" as const, text: `• ${j.title} — ${j.org}: ${j.url}` })),
+      ...jobs.slice(0, 10).map((j) => ({ kind: "p" as const, text: `• ${j.title}, ${j.org}: ${j.url}` })),
       { kind: "small", text: `Para editar ou desativar este alerta: ${manageUrl}` },
     ]),
 
@@ -102,7 +102,7 @@ export const mail = {
     ]),
 
   privacyRequestReceived: (to: string, protocol: string, dueDate: string) =>
-    render(to, `Solicitação de privacidade recebida — protocolo ${protocol}`, [
+    render(to, `Solicitação de privacidade recebida: protocolo ${protocol}`, [
       { kind: "p", text: `Recebemos sua solicitação relativa a dados pessoais. Protocolo: ${protocol}.` },
       { kind: "p", text: `Prazo estimado de resposta: até ${dueDate}.` },
       { kind: "small", text: "Podemos pedir informações adicionais para confirmar sua identidade antes de atender ao pedido." },

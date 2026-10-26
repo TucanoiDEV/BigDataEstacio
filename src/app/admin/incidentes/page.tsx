@@ -20,7 +20,7 @@ export default function IncidentsPage(props: PageProps<"/admin/incidentes">) {
         description={
           <>
             Registro interno para demonstrar a resposta a incidentes. Incidentes que possam acarretar risco ou dano relevante aos titulares devem ser
-            comunicados à ANPD e aos titulares no prazo da regulamentação vigente (a Resolução CD/ANPD nº 15/2024 prevê 3 dias úteis — confirme com a
+            comunicados à ANPD e aos titulares no prazo da regulamentação vigente (a Resolução CD/ANPD nº 15/2024 prevê 3 dias úteis; confirme com a
             assessoria jurídica). O procedimento completo está em <code>docs/RESPOSTA-A-INCIDENTES.md</code>.{" "}
             <Link href="/seguranca" className="text-primary underline">Página pública de segurança</Link>.
           </>

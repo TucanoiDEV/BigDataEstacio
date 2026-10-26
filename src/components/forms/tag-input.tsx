@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { X } from "lucide-react";
+import { Star, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -41,10 +41,10 @@ export function TagInput(props: {
                   type="button"
                   onClick={() => props.toggleable!.onToggle(tag)}
                   aria-pressed={selected}
-                  className={selected ? "font-semibold" : "opacity-80"}
+                  className={selected ? "inline-flex items-center gap-1 font-semibold" : "opacity-80"}
                   title={props.toggleable.label}
                 >
-                  {selected ? "★ " : ""}
+                  {selected && <Star className="size-3 fill-current" aria-hidden />}
                   {tag}
                 </button>
               ) : (

@@ -29,7 +29,7 @@ export function ExternalJobCard({ job, now }: { job: ExternalJobCardData; now: D
   const salary = formatSalaryRange(job.salaryMin, job.salaryMax);
   const location = [job.city, job.state].filter(Boolean).join(" – ") || job.locationLabel;
   return (
-    <article className="group relative flex min-w-0 flex-col rounded-xl border bg-card p-5 shadow-[0_1px_2px_rgba(11,59,70,0.04)] transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+    <article className="group relative flex min-w-0 flex-col rounded-xl border bg-card p-5 shadow-[0_1px_2px_rgba(11,59,70,0.04)] transition-colors hover:border-primary/40">
       <div className="flex items-start gap-3">
         <OrgLogo name={job.companyName} fileId={null} />
         <div className="min-w-0 flex-1">

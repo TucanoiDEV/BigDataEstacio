@@ -46,7 +46,7 @@ async function List() {
             <OrgLogo name={o.tradeName} fileId={o.logoFileId} size={52} />
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 truncate font-semibold">{o.tradeName} <BadgeCheck className="size-4 shrink-0 text-primary" aria-label="Verificada" /></p>
-              <p className="truncate text-sm text-muted-foreground">{[o.sector, [o.city, o.state].filter(Boolean).join("/")].filter(Boolean).join(" · ") || "—"}</p>
+              <p className="truncate text-sm text-muted-foreground">{[o.sector, [o.city, o.state].filter(Boolean).join("/")].filter(Boolean).join(" · ") || "Local não informado"}</p>
               <p className="mt-1 text-sm font-medium text-primary">{o._count.jobs} vaga{o._count.jobs === 1 ? "" : "s"} aberta{o._count.jobs === 1 ? "" : "s"}</p>
             </div>
           </Link>

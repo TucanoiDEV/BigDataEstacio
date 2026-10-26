@@ -62,7 +62,7 @@ export function JobForm({ orgId, jobId, status, defaults, orgVerified }: { orgId
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <TextField form={form} name={"city" as never} label="Cidade" required={workModel !== "REMOTE"} hint={workModel === "REMOTE" ? "Opcional para vagas remotas." : undefined} />
-          <SelectField form={form} name={"state" as never} label="UF" options={UFS.map((u) => ({ value: u.code, label: `${u.code} — ${u.name}` }))} allowEmpty />
+          <SelectField form={form} name={"state" as never} label="UF" options={UFS.map((u) => ({ value: u.code, label: `${u.code} - ${u.name}` }))} allowEmpty />
           <TextField form={form} name={"positions" as never} label="Nº de posições" type="number" min={1} max={1000} />
         </div>
         <TextField
@@ -105,7 +105,7 @@ export function JobForm({ orgId, jobId, status, defaults, orgVerified }: { orgId
                     req.onChange(((req.value as string[]) ?? []).filter((r) => v.includes(r)));
                   }}
                   error={fieldState.error?.message}
-                  hint="Clique em uma competência para marcá-la como obrigatória (★). Se nenhuma for marcada, todas contam como obrigatórias."
+                  hint="Clique em uma competência para marcá-la como obrigatória (marcada com estrela). Se nenhuma for marcada, todas contam como obrigatórias."
                   toggleable={{
                     selected: (req.value as string[]) ?? [],
                     label: "Marcar como obrigatória",

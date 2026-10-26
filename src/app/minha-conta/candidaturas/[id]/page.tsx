@@ -74,7 +74,7 @@ async function Detail({ params, searchParams }: { params: PageProps<"/minha-cont
                 )}
                 <span className={cn("text-sm", current ? "font-semibold text-foreground" : "text-muted-foreground")}>
                   {APPLICATION_STATUS_LABEL[step]}
-                  <span className="sr-only">{done ? " (concluída)" : " (pendente)"}{current ? " — etapa atual" : ""}</span>
+                  <span className="sr-only">{done ? " (concluída)" : " (pendente)"}{current ? ", etapa atual" : ""}</span>
                 </span>
               </li>
             );

@@ -36,7 +36,7 @@ async function List() {
       {reports.map((r) => (
         <li key={r.id} className="rounded-2xl border bg-card p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-semibold">{REASON[r.reason]} — {r.org?.tradeName}</p>
+            <p className="font-semibold">{REASON[r.reason]}: {r.org?.tradeName}</p>
             <StatusBadge tone={r.status === "OPEN" ? "amber" : "blue"}>{r.status === "OPEN" ? "Aberta" : "Em análise"}</StatusBadge>
           </div>
           {r.job && (

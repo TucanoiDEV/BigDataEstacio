@@ -97,7 +97,7 @@ function CookieBanner(props: { pending: boolean; onAccept: () => void; onReject:
     <section
       role="region"
       aria-label="Aviso de cookies"
-      className="fixed inset-x-0 bottom-0 z-50 border-t bg-card/98 shadow-[0_-8px_30px_rgba(11,59,70,0.12)] backdrop-blur animate-in slide-in-from-bottom-4"
+      className="fixed inset-x-0 bottom-0 z-50 border-t bg-card/98 shadow-[0_-8px_30px_rgba(11,59,70,0.12)] backdrop-blur"
     >
       <div className="container-page flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:gap-8">
         <div className="flex gap-3">
@@ -105,7 +105,7 @@ function CookieBanner(props: { pending: boolean; onAccept: () => void; onReject:
           <p className="text-sm leading-relaxed text-foreground">
             Usamos cookies <strong>necessários</strong> para o funcionamento e a segurança do site. Com sua permissão,
             também usaríamos cookies <strong>opcionais</strong> de análise e marketing. Você pode aceitar, rejeitar ou
-            escolher — e mudar de ideia a qualquer momento em “Preferências de cookies”, no rodapé.{" "}
+            escolher e mudar de ideia a qualquer momento em “Preferências de cookies”, no rodapé.{" "}
             <Link href="/cookies" className="font-medium text-primary underline underline-offset-2">
               Política de Cookies
             </Link>

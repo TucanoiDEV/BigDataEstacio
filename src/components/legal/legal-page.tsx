@@ -34,7 +34,7 @@ export function LegalPage(props: { title: string; version: string; intro?: React
           <div role="note" className="flex gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
             <Scale className="size-5 shrink-0" aria-hidden />
             <p>
-              <strong>Minuta — requer revisão jurídica antes da publicação.</strong> Este texto foi preparado como ponto de partida e descreve o
+              <strong>Minuta: requer revisão jurídica antes da publicação.</strong> Este texto foi preparado como ponto de partida e descreve o
               funcionamento real da plataforma, mas não substitui a análise de um(a) advogado(a). Campos marcados com [PREENCHER] dependem de
               informações do controlador que não podem ser presumidas.
             </p>

@@ -146,7 +146,7 @@ async function CagedSection({ datasetId, territory }: { datasetId: string; terri
     <section aria-labelledby="caged-title" className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 id="caged-title" className="text-xl font-bold text-petroleum">Emprego formal — {territory.name}</h2>
+          <h2 id="caged-title" className="text-xl font-bold text-petroleum">Emprego formal: {territory.name}</h2>
           <p className="text-sm text-muted-foreground">Novo CAGED · {periodLabel} · dados com ajustes</p>
         </div>
       </div>
@@ -175,7 +175,7 @@ async function CagedSection({ datasetId, territory }: { datasetId: string; terri
         {map ? <UfMap shapes={map.shapes} viewBox={map.viewBox} bins={map.bins} selected={territory.ufCode} period={periodLabel} /> : null}
         {ranking ? (
           <div className="rounded-2xl border bg-card p-5">
-            <h3 className="font-semibold text-petroleum">Municípios com maior saldo — {territory.name}</h3>
+            <h3 className="font-semibold text-petroleum">Municípios com maior saldo: {territory.name}</h3>
             <p className="text-xs text-muted-foreground">Acumulado de {periodLabel} · {ranking.count} municípios com movimentação</p>
             <ol className="mt-3 divide-y text-sm">
               {ranking.top.map((m, i) => (
@@ -198,7 +198,7 @@ async function CagedSection({ datasetId, territory }: { datasetId: string; terri
           </div>
         ) : (
           <div className="rounded-2xl border bg-card p-5 text-sm">
-            <h3 className="flex items-center gap-2 font-semibold text-petroleum"><Scale className="size-4" aria-hidden /> Movimentação acumulada — {territory.name}</h3>
+            <h3 className="flex items-center gap-2 font-semibold text-petroleum"><Scale className="size-4" aria-hidden /> Movimentação acumulada: {territory.name}</h3>
             <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
               <div><dt className="text-xs text-muted-foreground">Admissões</dt><dd className="text-lg font-bold">{formatNumber(sum12.adm)}</dd></div>
               <div><dt className="text-xs text-muted-foreground">Desligamentos</dt><dd className="text-lg font-bold">{formatNumber(sum12.sep)}</dd></div>
@@ -222,7 +222,7 @@ async function CagedSection({ datasetId, territory }: { datasetId: string; terri
 
       {!isMun && (
         <section className="rounded-2xl border bg-card p-5" aria-labelledby="salarios">
-          <h3 id="salarios" className="font-semibold text-petroleum">Salário mediano de admissão por setor — {formatMonth(last.period)}</h3>
+          <h3 id="salarios" className="font-semibold text-petroleum">Salário mediano de admissão por setor em {formatMonth(last.period)}</h3>
           <p className="text-xs text-muted-foreground">
             Mediana do salário contratual de admissão (mensalistas, não intermitentes, entre 0,3 e 150 salários mínimos). Exibido somente com ao
             menos 30 admissões válidas no recorte. Total do território: {last.wage ? formatCurrency(last.wage) : "amostra insuficiente"}.
@@ -260,7 +260,7 @@ async function PnadSection({ territory }: { territory: Awaited<ReturnType<typeof
   const ufName = territory.ufName;
   return (
     <section aria-labelledby="pnad-title" className="space-y-4">
-      <h2 id="pnad-title" className="text-xl font-bold text-petroleum">Desocupação {ufName ? `— Brasil e ${ufName}` : "— Brasil"}</h2>
+      <h2 id="pnad-title" className="text-xl font-bold text-petroleum">Desocupação: {ufName ? `Brasil e ${ufName}` : "Brasil"}</h2>
       {territory.level === "MUNICIPALITY" && ufName && (
         <p className="text-sm text-muted-foreground">
           A PNAD Contínua não produz estimativas municipais; exibimos {ufName}, UF de {territory.name}.

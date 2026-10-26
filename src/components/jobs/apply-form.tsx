@@ -50,7 +50,7 @@ export function ApplyForm(props: {
         <h2 className="font-semibold text-petroleum">Currículo</h2>
         {props.resumes.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            Você ainda não enviou currículo em PDF. Ele é opcional — a empresa verá seu perfil.{" "}
+            Você ainda não enviou currículo em PDF. Ele é opcional: a empresa verá seu perfil.{" "}
             <Link href="/minha-conta/curriculos" className="font-medium text-primary underline">Enviar currículo</Link>
           </p>
         ) : (
@@ -86,7 +86,7 @@ export function ApplyForm(props: {
         <h2 className="flex items-center gap-2 font-semibold text-petroleum"><ShieldCheck className="size-4" aria-hidden /> O que será compartilhado com {props.orgName}</h2>
         <p className="text-sm text-muted-foreground">
           Nome, título profissional, cidade/UF, resumo, experiências, formação, competências e links do perfil, além do
-          currículo escolhido e da mensagem. Sua foto não é compartilhada. A empresa poderá ver apenas esta candidatura —
+          currículo escolhido e da mensagem. Sua foto não é compartilhada. A empresa poderá ver apenas esta candidatura,
           não suas outras candidaturas.
         </p>
         <CheckboxField form={form} name="shareEmail" label={`Compartilhar meu e-mail (${props.email})`} />

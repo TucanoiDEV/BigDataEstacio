@@ -42,7 +42,7 @@ async function warnModeration(jobId: string, title: string, signals: string[]) {
   await notifyMany(await platformAdminIds(), {
     type: "JOB_MODERATION",
     title: "Vaga retida para moderação",
-    body: `"${title}" — sinais: ${signals.join(", ")}`,
+    body: `"${title}". Sinais: ${signals.join(", ")}`,
     link: `/admin/vagas?id=${jobId}`,
   });
 }

@@ -13,7 +13,7 @@ export default function AdminDataPage() {
     <div className="space-y-6">
       <PageHeader
         title="Importações de dados oficiais"
-        description={<>Importações são executadas pelo pipeline (<code>data-pipeline/</code>) — nunca pela interface web. Revise os números de validação antes de publicar no observatório.</>}
+        description={<>Importações são executadas pelo pipeline (<code>data-pipeline/</code>), nunca pela interface web. Revise os números de validação antes de publicar no observatório.</>}
       />
       <Suspense fallback={<SectionSkeleton rows={8} />}>
         <Content />

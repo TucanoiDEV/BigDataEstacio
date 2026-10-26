@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, Building2, CalendarDays, CheckCircle2, ExternalLink, MapPin, ShieldAlert, Sparkles, Users, Wallet } from "lucide-react";
+import { AlertTriangle, Building2, CalendarDays, CheckCircle2, ExternalLink, MapPin, ShieldAlert, Target, Users, Wallet } from "lucide-react";
 import { OrgLogo } from "@/components/jobs/org-logo";
 import { JobTag } from "@/components/jobs/job-card";
 import { SaveJobButton } from "@/components/jobs/save-job-button";
@@ -24,7 +24,7 @@ export async function generateMetadata(props: PageProps<"/vagas/[id]">): Promise
   if (!job) return { title: "Vaga não encontrada", robots: { index: false } };
   const where = job.workModel === "REMOTE" ? "Remoto" : [job.city, job.state].filter(Boolean).join("/");
   return {
-    title: `${job.title} — ${job.org.tradeName}`,
+    title: `${job.title} | ${job.org.tradeName}`,
     description: `${job.title} em ${job.org.tradeName} (${where}). ${CONTRACT_TYPE_LABEL[job.contractType]}, ${WORK_MODEL_LABEL[job.workModel]}.`,
     alternates: { canonical: `/vagas/${job.id}` },
     robots: job.status === "ACTIVE" ? undefined : { index: false },
@@ -131,7 +131,7 @@ async function JobContent({ params }: { params: PageProps<"/vagas/[id]">["params
                 {!job.org.isDemo && <CheckCircle2 className="size-4 text-primary" aria-label="Empresa verificada" />}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {job.org.isDemo && <JobTag tone="rose">Demonstração — vaga fictícia</JobTag>}
+                {job.org.isDemo && <JobTag tone="rose">Demonstração: vaga fictícia</JobTag>}
                 <JobTag tone="sky">{CONTRACT_TYPE_LABEL[job.contractType]}</JobTag>
                 <JobTag tone="violet">{WORK_MODEL_LABEL[job.workModel]}</JobTag>
                 <JobTag tone="amber">{SENIORITY_LABEL[job.seniority]}</JobTag>
@@ -143,12 +143,12 @@ async function JobContent({ params }: { params: PageProps<"/vagas/[id]">["params
             <div className="flex gap-2"><Wallet className="size-4 text-primary" aria-hidden /><div><dt className="text-muted-foreground">Salário</dt><dd className="font-semibold">{salary ? `${salary}/mês` : "A combinar"}</dd></div></div>
             <div className="flex gap-2"><MapPin className="size-4 text-primary" aria-hidden /><div><dt className="text-muted-foreground">Local</dt><dd className="font-semibold">{location || "Não informado"}</dd></div></div>
             <div className="flex gap-2"><Users className="size-4 text-primary" aria-hidden /><div><dt className="text-muted-foreground">Posições</dt><dd className="font-semibold">{job.positions}</dd></div></div>
-            <div className="flex gap-2"><CalendarDays className="size-4 text-primary" aria-hidden /><div><dt className="text-muted-foreground">Publicada</dt><dd className="font-semibold">{job.publishedAt ? formatRelative(job.publishedAt, now) : "—"}</dd></div></div>
+            <div className="flex gap-2"><CalendarDays className="size-4 text-primary" aria-hidden /><div><dt className="text-muted-foreground">Publicada</dt><dd className="font-semibold">{job.publishedAt ? formatRelative(job.publishedAt, now) : "-"}</dd></div></div>
           </dl>
           <div className="mt-6 flex flex-wrap gap-2">
             {application ? (
               <Link href={`/minha-conta/candidaturas/${application.id}`} className="inline-flex h-10 items-center gap-2 rounded-lg bg-secondary px-4 text-sm font-semibold text-secondary-foreground">
-                <CheckCircle2 className="size-4" aria-hidden /> Você já se candidatou — acompanhar
+                <CheckCircle2 className="size-4" aria-hidden /> Você já se candidatou. Acompanhar
               </Link>
             ) : isOpen ? (
               <Link href={`/vagas/${job.id}/candidatar`} className="inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
@@ -238,7 +238,7 @@ async function MatchCard({ userId, jobId }: { userId: string; jobId: string }) {
   if (!rec) {
     return (
       <section className="rounded-2xl border bg-card p-5 text-sm">
-        <h2 className="flex items-center gap-2 font-semibold text-petroleum"><Sparkles className="size-4" aria-hidden /> Compatibilidade</h2>
+        <h2 className="flex items-center gap-2 font-semibold text-petroleum"><Target className="size-4" aria-hidden /> Compatibilidade</h2>
         <p className="mt-2 text-muted-foreground">
           Complete seu perfil (ou ative recomendações em Privacidade) para ver por que esta vaga combina com você.
         </p>
@@ -248,7 +248,7 @@ async function MatchCard({ userId, jobId }: { userId: string; jobId: string }) {
   }
   return (
     <section className="rounded-2xl border bg-card p-5 text-sm" aria-labelledby="match">
-      <h2 id="match" className="flex items-center gap-2 font-semibold text-petroleum"><Sparkles className="size-4" aria-hidden /> Compatibilidade com seu perfil</h2>
+      <h2 id="match" className="flex items-center gap-2 font-semibold text-petroleum"><Target className="size-4" aria-hidden /> Compatibilidade com seu perfil</h2>
       <div className="mt-3 flex items-center gap-3">
         <div className="h-2 flex-1 rounded-full bg-muted" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={rec.score} aria-label="Pontuação de compatibilidade">
           <div className="h-2 rounded-full bg-primary" style={{ width: `${rec.score}%` }} />

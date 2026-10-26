@@ -15,7 +15,7 @@ const appUrl = process.env.APP_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
-    default: "Emprego Agora — vagas e dados do mercado de trabalho",
+    default: "Emprego Agora: vagas e dados do mercado de trabalho",
     template: "%s · Emprego Agora",
   },
   description:
