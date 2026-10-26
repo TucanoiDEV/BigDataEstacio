@@ -11,8 +11,12 @@ const PERIOD_MS = { DAILY: 24 * 3600_000, WEEKLY: 7 * 24 * 3600_000 } as const;
 
 /**
  * Processa alertas vencidos: busca vagas publicadas desde o último envio,
- * envia e-mail (se o usuário permitir) e notificação interna.
+ * envia notificação interna e e-mail (se o usuário permitir).
  * Executado periodicamente (cron): `npm run jobs:alerts`.
+ *
+ * O cursor (`lastSentAt`) só avança depois da notificação interna: se ela falhar,
+ * a mesma janela é reprocessada na próxima execução em vez de ser perdida.
+ * `sent` conta alertas notificados; e-mails entregues e falhos são contados à parte.
  */
 export async function runJobAlerts(now = new Date()) {
   const alerts = await db.jobAlert.findMany({
@@ -21,6 +25,9 @@ export async function runJobAlerts(now = new Date()) {
   });
   let sent = 0;
   let skipped = 0;
+  let failed = 0;
+  let emailed = 0;
+  let emailFailed = 0;
   for (const alert of alerts) {
     const last = alert.lastSentAt ?? alert.createdAt;
     if (now.getTime() - last.getTime() < PERIOD_MS[alert.frequency]) {
@@ -32,32 +39,39 @@ export async function runJobAlerts(now = new Date()) {
       skipped++;
       continue;
     }
-    const result = await searchJobs({ ...parsed.data, ordem: "recent", pagina: 1 }, 10, { publishedAfter: last });
-    // Marca a janela como processada mesmo sem vagas novas (evita reprocessar o mesmo intervalo).
-    await db.jobAlert.update({ where: { id: alert.id }, data: { lastSentAt: now } });
-    if (result.jobs.length === 0) continue;
-
-    const base = env().APP_URL;
-    await notify({
-      userId: alert.user.id,
-      type: "JOB_ALERT",
-      title: `${result.total} nova(s) vaga(s): ${alert.name}`,
-      body: result.jobs.slice(0, 3).map((j) => j.title).join(" · "),
-      link: "/minha-conta/alertas",
-    });
-    if (alert.user.commPreference?.emailJobAlerts ?? true) {
-      await sendMailSafe(
-        mail.jobAlert(
-          alert.user.email,
-          alert.name,
-          result.jobs.map((j) => ({ title: j.title, org: j.org.tradeName, url: new URL(`/vagas/${j.id}`, base).toString() })),
-          new URL("/minha-conta/alertas", base).toString(),
-        ),
-      );
+    try {
+      const result = await searchJobs({ ...parsed.data, ordem: "recent", pagina: 1 }, 10, { publishedAfter: last });
+      if (result.jobs.length > 0) {
+        const base = env().APP_URL;
+        await notify({
+          userId: alert.user.id,
+          type: "JOB_ALERT",
+          title: `${result.total} nova(s) vaga(s): ${alert.name}`,
+          body: result.jobs.slice(0, 3).map((j) => j.title).join(" · "),
+          link: "/minha-conta/alertas",
+        });
+        if (alert.user.commPreference?.emailJobAlerts ?? true) {
+          const ok = await sendMailSafe(
+            mail.jobAlert(
+              alert.user.email,
+              alert.name,
+              result.jobs.map((j) => ({ title: j.title, org: j.org.tradeName, url: new URL(`/vagas/${j.id}`, base).toString() })),
+              new URL("/minha-conta/alertas", base).toString(),
+            ),
+          );
+          if (ok) emailed++;
+          else emailFailed++;
+        }
+        sent++;
+      }
+      // Marca a janela como processada mesmo sem vagas novas (evita reprocessar o mesmo intervalo).
+      await db.jobAlert.update({ where: { id: alert.id }, data: { lastSentAt: now } });
+    } catch (err) {
+      failed++;
+      console.error("[alerts] falha ao processar alerta", alert.id, err instanceof Error ? err.message : err);
     }
-    sent++;
   }
-  return { processed: alerts.length, sent, skipped };
+  return { processed: alerts.length, sent, skipped, failed, emailed, emailFailed };
 }
 
 /** Limpeza periódica de dados expirados (minimização). */
