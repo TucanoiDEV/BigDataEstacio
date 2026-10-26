@@ -27,6 +27,7 @@ async function Content({ params }: { params: PageProps<"/empresa/[orgId]/vagas/[
     <JobForm
       orgId={orgId}
       jobId={jobId}
+      status={job.status}
       orgVerified={access.org.verificationStatus === "VERIFIED"}
       defaults={{
         title: job.title,

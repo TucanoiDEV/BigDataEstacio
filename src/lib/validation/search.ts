@@ -9,11 +9,13 @@ const multi = <T extends readonly [string, ...string[]]>(values: T) =>
     .transform((v) => (v === undefined ? [] : Array.isArray(v) ? v : v.split(",")))
     .transform((arr) => arr.filter((x): x is T[number] => (values as readonly string[]).includes(x)));
 
+// Parâmetro escalar repetido na URL (?q=a&q=b) chega como array: vale o primeiro valor.
 const optionalString = (max: number) =>
   z
-    .string()
+    .union([z.string(), z.array(z.string())])
     .optional()
-    .transform((v) => v?.trim().slice(0, max) || undefined);
+    .transform((v) => (Array.isArray(v) ? v[0] : v)?.trim().slice(0, max) || undefined)
+    .catch(undefined);
 
 export const SORTS = ["recent", "salary", "relevance"] as const;
 
@@ -34,7 +36,8 @@ export const jobSearchSchema = z.object({
 export type JobSearch = z.output<typeof jobSearchSchema>;
 
 export function parseJobSearch(sp: Record<string, string | string[] | undefined>): JobSearch {
-  return jobSearchSchema.parse(sp);
+  const parsed = jobSearchSchema.safeParse(sp);
+  return parsed.success ? parsed.data : jobSearchSchema.parse({});
 }
 
 /** Serializa filtros de volta para query string (para paginação e alertas). */

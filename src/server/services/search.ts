@@ -1,6 +1,7 @@
 import "server-only";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/server/db";
+import { publicJobWhere } from "@/server/services/jobs";
 import { PAGE_SIZE } from "@/lib/constants";
 import { normalizeText } from "@/lib/text";
 import type { JobSearch } from "@/lib/validation/search";
@@ -48,7 +49,7 @@ export async function searchJobs(filters: JobSearch, pageSize = PAGE_SIZE, opts:
   if (filters.contrato.length) conds.push(Prisma.sql`j."contractType"::text = ANY(${filters.contrato})`);
   if (filters.senioridade.length) conds.push(Prisma.sql`j."seniority"::text = ANY(${filters.senioridade})`);
   if (filters.setor) conds.push(Prisma.sql`j."sector" = ${filters.setor}`);
-  if (filters.salarioMin) conds.push(Prisma.sql`j."salaryVisible" AND COALESCE(j."salaryMax", j."salaryMin") >= ${filters.salarioMin}`);
+  if (filters.salarioMin) conds.push(Prisma.sql`j."salaryVisible" AND COALESCE(j."salaryMin", j."salaryMax") >= ${filters.salarioMin}`);
   if (filters.empresa) conds.push(Prisma.sql`o."slug" = ${filters.empresa}`);
   if (opts.publishedAfter) conds.push(Prisma.sql`j."publishedAt" > ${opts.publishedAfter}`);
 
@@ -88,10 +89,10 @@ async function countOnly(where: Prisma.Sql): Promise<number> {
 }
 
 /** Setores com mais vagas ativas (para a página inicial). */
-export async function trendingSectors(limit = 8) {
+export async function trendingSectors(limit = 8, now = new Date()) {
   const rows = await db.job.groupBy({
     by: ["sector"],
-    where: { status: "ACTIVE", org: { verificationStatus: "VERIFIED" } },
+    where: publicJobWhere(now),
     _count: { _all: true },
     orderBy: { _count: { sector: "desc" } },
     take: limit,

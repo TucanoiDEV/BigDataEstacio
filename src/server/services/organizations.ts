@@ -12,6 +12,7 @@ import { randomToken, sha256 } from "@/server/security/crypto";
 import { sendMailSafe } from "@/server/mail/mailer";
 import { mail } from "@/server/mail/templates";
 import { notifyMany, platformAdminIds } from "@/server/services/notifications";
+import { buildSearchText } from "@/server/services/jobs";
 import { ORG_ROLE_LABEL } from "@/lib/constants";
 import { slugify } from "@/lib/text";
 import type { z } from "zod";
@@ -57,9 +58,55 @@ export async function createOrganization(user: CurrentUser, input: z.output<type
   }
 }
 
-export async function updateOrganization(access: OrgAccess, input: z.output<typeof updateOrgSchema>) {
-  await db.organization.update({ where: { id: access.org.id }, data: input });
-  await audit({ actorUserId: access.user.id, action: "org.updated", targetType: "Organization", targetId: access.org.id, orgId: access.org.id, metadata: { fields: Object.keys(input) } });
+const hostOf = (url: string | null) => {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return url.toLowerCase();
+  }
+};
+
+/**
+ * Atualiza o perfil da empresa. Trocar o domínio do site ou o e-mail de contato
+ * de uma empresa verificada a devolve para análise: a confiança concedida ao
+ * contato anterior não é herdada. Renomear reindexa a busca das vagas.
+ */
+export async function updateOrganization(access: OrgAccess, input: z.output<typeof updateOrgSchema>): Promise<{ reverification: boolean }> {
+  const current = await db.organization.findUniqueOrThrow({
+    where: { id: access.org.id },
+    select: { tradeName: true, website: true, contactEmail: true, verificationStatus: true },
+  });
+  const changedIdentity =
+    hostOf(current.website) !== hostOf(input.website) || current.contactEmail.toLowerCase() !== input.contactEmail.toLowerCase();
+  const reverification = current.verificationStatus === "VERIFIED" && changedIdentity;
+  const renamed = current.tradeName !== input.tradeName;
+
+  await db.$transaction(async (tx) => {
+    await tx.organization.update({
+      where: { id: access.org.id },
+      data: { ...input, ...(reverification ? { verificationStatus: "PENDING" as const } : {}) },
+    });
+    if (renamed) {
+      const jobs = await tx.job.findMany({
+        where: { orgId: access.org.id },
+        select: { id: true, title: true, description: true, requirements: true, sector: true, city: true, state: true, skills: { select: { skill: { select: { name: true } } } } },
+      });
+      for (const j of jobs) {
+        await tx.job.update({ where: { id: j.id }, data: { searchText: buildSearchText(j, input.tradeName, j.skills.map((s) => s.skill.name)) } });
+      }
+    }
+  });
+  await audit({ actorUserId: access.user.id, action: "org.updated", targetType: "Organization", targetId: access.org.id, orgId: access.org.id, metadata: { fields: Object.keys(input), reverification } });
+  if (reverification) {
+    await notifyMany(await platformAdminIds(), {
+      type: "ORG_STATUS",
+      title: "Empresa alterou site ou e-mail de contato",
+      body: `${input.tradeName} voltou para verificação após trocar dados de contato.`,
+      link: "/admin/empresas",
+    });
+  }
+  return { reverification };
 }
 
 /** Reenvia para análise uma empresa recusada (após corrigir os dados). */

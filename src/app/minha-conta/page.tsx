@@ -138,7 +138,7 @@ async function Overview() {
 async function Recommendations() {
   const user = await requireUser({ returnTo: "/minha-conta" });
   const now = new Date();
-  const recs = await recommendJobs(user.id, now, 6);
+  const { items: recs, sparseProfile } = await recommendJobs(user.id, now, 6);
   if (recs.length === 0) {
     return (
       <EmptyState
@@ -150,10 +150,18 @@ async function Recommendations() {
     );
   }
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {recs.map(({ job, rec }) => (
-        <JobCard key={job.id} job={job} now={now} reasons={rec.reasons} />
-      ))}
+    <div className="space-y-4">
+      {sparseProfile && (
+        <p role="note" className="rounded-xl border bg-muted/50 p-4 text-sm text-muted-foreground">
+          Seu perfil ainda não tem competências, cargo desejado nem setores de interesse, então estas sugestões são genéricas.{" "}
+          <Link href="/minha-conta/perfil" className="font-medium text-primary underline">Complete seu perfil</Link> para melhorar as recomendações.
+        </p>
+      )}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {recs.map(({ job, rec }) => (
+          <JobCard key={job.id} job={job} now={now} reasons={rec.reasons} />
+        ))}
+      </div>
     </div>
   );
 }

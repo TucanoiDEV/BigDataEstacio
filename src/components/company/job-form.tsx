@@ -2,6 +2,7 @@
 
 import { Controller } from "react-hook-form";
 import { z } from "zod";
+import type { JobStatus } from "@/generated/prisma/browser";
 import { useActionForm } from "@/components/forms/use-action-form";
 import { CheckboxField, FormRootError, SelectField, SubmitButton, TextAreaField, TextField } from "@/components/forms/fields";
 import { TagInput } from "@/components/forms/tag-input";
@@ -11,7 +12,14 @@ import { CONTRACT_TYPE_LABEL, SECTORS, SENIORITY_LABEL, UFS, WORK_MODEL_LABEL } 
 
 const opts = (rec: Record<string, string>) => Object.entries(rec).map(([value, label]) => ({ value, label }));
 
-export function JobForm({ orgId, jobId, defaults, orgVerified }: { orgId: string; jobId?: string; defaults?: Partial<JobInput>; orgVerified: boolean }) {
+// Na edição, ACTIVE e PENDING_REVIEW gravam direto no anúncio: não existe rascunho separado.
+const EDIT_NOTICE: Partial<Record<JobStatus, string>> = {
+  ACTIVE: "Esta vaga está publicada: as alterações ficam visíveis assim que forem salvas.",
+  PAUSED: "Esta vaga está pausada: salve para manter pausada ou publique para reativá-la.",
+  PENDING_REVIEW: "Esta vaga está em análise pela moderação: as alterações serão avaliadas antes da publicação.",
+};
+
+export function JobForm({ orgId, jobId, status, defaults, orgVerified }: { orgId: string; jobId?: string; status?: JobStatus; defaults?: Partial<JobInput>; orgVerified: boolean }) {
   const schema = jobSchema.and(z.object({ orgId: z.string(), jobId: z.string().optional() }));
   const { form, onSubmit, pending } = useActionForm({
     schema,
@@ -110,11 +118,23 @@ export function JobForm({ orgId, jobId, defaults, orgVerified }: { orgId: string
         {!orgVerified && " Sua empresa ainda não foi verificada: por enquanto é possível apenas salvar como rascunho."}
       </div>
 
+      {status && EDIT_NOTICE[status] && (
+        <p role="note" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          {EDIT_NOTICE[status]}
+        </p>
+      )}
+
       <div className="flex flex-wrap gap-3">
-        <SubmitButton pending={pending} variant="outline">Salvar rascunho</SubmitButton>
-        <SubmitButton pending={pending} type="button" disabled={!orgVerified || pending} onClick={() => submit(true)}>
-          {jobId ? "Salvar e publicar" : "Publicar vaga"}
-        </SubmitButton>
+        {status === "ACTIVE" || status === "PENDING_REVIEW" ? (
+          <SubmitButton pending={pending}>Salvar alterações</SubmitButton>
+        ) : (
+          <>
+            <SubmitButton pending={pending} variant="outline">{status === "PAUSED" ? "Salvar (manter pausada)" : "Salvar rascunho"}</SubmitButton>
+            <SubmitButton pending={pending} type="button" disabled={!orgVerified || pending} onClick={() => submit(true)}>
+              {jobId ? "Salvar e publicar" : "Publicar vaga"}
+            </SubmitButton>
+          </>
+        )}
       </div>
     </form>
   );

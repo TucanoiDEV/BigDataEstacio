@@ -25,9 +25,14 @@ export const createOrgAction = createAction(createOrgSchema, async (input) => {
 
 export const updateOrgAction = createAction(updateOrgSchema.extend({ orgId: idSchema }), async ({ orgId, ...input }) => {
   const access = await assertOrgPermission(orgId, "org.edit");
-  await orgs.updateOrganization(access, input);
+  const res = await orgs.updateOrganization(access, input);
   revalidatePath(`/empresa/${orgId}`, "layout");
-  return { ok: true, message: "Perfil da empresa atualizado." };
+  return {
+    ok: true,
+    message: res.reverification
+      ? "Perfil atualizado. Como o site ou o e-mail de contato mudou, a empresa voltou para verificação e as vagas ficam fora do ar até a aprovação."
+      : "Perfil da empresa atualizado.",
+  };
 });
 
 export const requestReverificationAction = createAction(z.object({ orgId: idSchema }), async ({ orgId }) => {
@@ -75,11 +80,14 @@ export const jobLifecycleAction = createAction(
   z.object({ orgId: idSchema, jobId: idSchema, action: z.enum(["pause", "resume", "close"]) }),
   async ({ orgId, jobId, action }) => {
     const access = await assertOrgPermission(orgId, "jobs.manage");
-    await jobs.changeJobLifecycle(access, jobId, action);
+    const res = await jobs.changeJobLifecycle(access, jobId, action);
     revalidatePath(`/empresa/${orgId}/vagas`);
     revalidatePath(`/empresa/${orgId}/vagas/${jobId}`);
     revalidatePath(`/vagas/${jobId}`);
-    const msg = { pause: "Vaga pausada.", resume: "Vaga reativada.", close: "Vaga encerrada." }[action];
+    const msg =
+      res.status === "PENDING_REVIEW"
+        ? "A vaga foi enviada para análise da moderação antes de voltar ao ar."
+        : { pause: "Vaga pausada.", resume: "Vaga reativada.", close: "Vaga encerrada." }[action];
     return { ok: true, message: msg };
   },
 );
