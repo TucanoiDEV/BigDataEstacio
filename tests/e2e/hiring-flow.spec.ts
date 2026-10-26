@@ -1,9 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { fixtures, login, pick } from "./helpers";
+import { fixtures, login, pick, waitForStreamedContent } from "./helpers";
 
 // Fluxo obrigatório: empresa verificada publica vaga → candidato encontra e se candidata →
 // empresa acompanha e altera o status → candidato visualiza a atualização.
 test("fluxo completo de contratação", async ({ browser }) => {
+  // Fluxo longo com duas sessões: o limite padrão de 30 s fica no limiar nesta máquina.
+  test.setTimeout(90_000);
   const { orgId } = fixtures();
   const title = `Analista de Suporte E2E ${Date.now()}`;
 
@@ -11,6 +13,7 @@ test("fluxo completo de contratação", async ({ browser }) => {
   const company = await (await browser.newContext()).newPage();
   await login(company, "recrutadora.e2e@exemplo.test");
   await company.goto(`/empresa/${orgId}/vagas/nova`);
+  await waitForStreamedContent(company);
   await company.getByLabel("Título").fill(title);
   await pick(company, "Setor", "Tecnologia da informação");
   await pick(company, "Senioridade", "Júnior");

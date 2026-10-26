@@ -5,6 +5,14 @@ export function fixtures(): { orgId: string; password: string } {
   return JSON.parse(readFileSync("tests/e2e/.fixtures.json", "utf8"));
 }
 
+/**
+ * Aguarda o streaming terminar: por instantes o React mantém uma cópia oculta do
+ * conteúdo suspenso (<div hidden id="S:n">) e localizadores por rótulo a contam.
+ */
+export async function waitForStreamedContent(page: Page) {
+  await expect(page.locator('div[hidden][id^="S:"]')).toHaveCount(0);
+}
+
 /** Responde ao banner de cookies (necessário antes de interagir com o rodapé da página). */
 export async function rejectOptionalCookies(page: Page) {
   const banner = page.getByRole("region", { name: "Aviso de cookies" });
@@ -16,6 +24,7 @@ export async function rejectOptionalCookies(page: Page) {
 
 export async function login(page: Page, email: string) {
   await page.goto("/entrar");
+  await waitForStreamedContent(page);
   await rejectOptionalCookies(page);
   await page.getByLabel("E-mail").fill(email);
   await page.locator('input[name="password"]').fill(fixtures().password);
