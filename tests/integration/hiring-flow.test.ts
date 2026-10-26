@@ -20,7 +20,7 @@ describe("fluxo principal de contratação", () => {
     expect(job.status).toBe("ACTIVE");
 
     const found = await searchJobs(parseJobSearch({ q: "suporte", modalidade: "REMOTE" }));
-    expect(found.jobs.map((j) => j.id)).toContain(job.id);
+    expect(found.items.map((i) => i.job.id)).toContain(job.id);
 
     const appId = await apps.applyToJob(candidate, { jobId: job.id, resumeId: null, coverLetter: "Tenho interesse.", shareEmail: false, sharePhone: false });
     await expect(apps.applyToJob(candidate, { jobId: job.id, resumeId: null, coverLetter: null, shareEmail: false, sharePhone: false })).rejects.toThrow(/já se candidatou/);

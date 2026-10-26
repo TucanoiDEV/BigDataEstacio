@@ -97,7 +97,7 @@ describe("regressões da auditoria (26/10/2026)", () => {
     const above = await jobs.createJob(access, { ...JOB_INPUT, title: "Faixa acima", salaryMin: 4500, salaryMax: 6000 });
     const onlyMax = await jobs.createJob(access, { ...JOB_INPUT, title: "Só teto", salaryMin: null, salaryMax: 4200 });
     const hidden = await jobs.createJob(access, { ...JOB_INPUT, title: "Oculto", salaryMin: 9000, salaryMax: 9500, salaryVisible: false });
-    const ids = (await searchJobs(parseJobSearch({ salarioMin: "4000" }))).jobs.map((j) => j.id);
+    const ids = (await searchJobs(parseJobSearch({ salarioMin: "4000" }))).items.map((i) => i.job.id);
     expect(ids).toContain(above.id);
     expect(ids).toContain(onlyMax.id);
     expect(ids).not.toContain(crossing.id);
@@ -120,7 +120,7 @@ describe("regressões da auditoria (26/10/2026)", () => {
     // Mesmo domínio (só muda o caminho) e renomeação não exigem nova verificação.
     const renamed = await orgs.updateOrganization(access, { ...base, website: "https://www.exemplo.test/carreiras", tradeName: "Zebraverde Tecnologia" });
     expect(renamed.reverification).toBe(false);
-    expect((await searchJobs(parseJobSearch({ q: "zebraverde" }))).jobs.map((j) => j.id)).toContain(job.id);
+    expect((await searchJobs(parseJobSearch({ q: "zebraverde" }))).items.map((i) => i.job.id)).toContain(job.id);
 
     expect((await orgs.updateOrganization(access, { ...base, tradeName: "Zebraverde Tecnologia", website: "https://outro-dominio.test" })).reverification).toBe(true);
     expect((await db.organization.findUniqueOrThrow({ where: { id: org.id } })).verificationStatus).toBe("PENDING");

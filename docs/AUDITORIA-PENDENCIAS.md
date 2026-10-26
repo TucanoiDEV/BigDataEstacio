@@ -38,7 +38,7 @@ Legenda: 🔴 aplicar agora · 🟠 aplicar agora, depende de decisão · 🟡 p
 |---|---|---|
 | 6 | No celular, filtros empurram o primeiro card para ~1.340 px | Painel "Filtros" recolhível com contador de ativos; busca, total e ordenação junto aos cards; filtros preservados na URL; foco restaurado ao fechar |
 | 12 | Menu móvel mostra "Entrar"/"Criar conta" com sessão ativa | `MobileNav` (client) recebe o usuário do `site-header`; exibir "Minha conta", "Candidaturas" e área da empresa conforme acesso; traduzir "Close" → "Fechar" no componente `sheet` |
-| 4 | Busca de cidade depende de acentos ("Sao Paulo" ≠ "São Paulo") | Migration com extensão `unaccent` ou coluna `cityNormalized`; normalizar os dois lados e espaços |
+| 4 ✅ | Busca de cidade dependia de acentos ("Sao Paulo" ≠ "São Paulo") | Resolvido na busca unificada: a cidade é comparada sem acento e sem caixa nas duas origens (`translate`/`cityNormalized`). O autocomplete com código IBGE continua como evolução |
 
 **Também concluído:** #9 ✅. Ao renomear a empresa, `updateOrganization` reconstrói o `searchText` de todas as vagas dela na mesma transação.
 
@@ -61,7 +61,7 @@ Legenda: 🔴 aplicar agora · 🟠 aplicar agora, depende de decisão · 🟡 p
 - **Observatório:** seletor de período, comparação entre territórios, exportação CSV com fonte, competência e data de extração. Não misturar saldo do CAGED com quantidade de vagas.
 - **Qualidade dos dados:** reconciliar agregados importados com totais oficiais, alertar sobre atualização atrasada, preservar versões/revisões.
 - **Recrutamento:** busca e paginação nas candidaturas, filtros por etapa, indicador de tempo sem resposta; evitar carregar listas inteiras.
-- **Demonstração:** selo "Demonstração" também nos cards e no cabeçalho do ambiente.
+- ✅ **Demonstração:** selo nos cards e na página da vaga; vagas fictícias fora do sitemap e sem `JobPosting`. Estratégia de vagas reais em [VAGAS-REAIS.md](VAGAS-REAIS.md).
 
 ### Preparação de produção (já reconhecidos em STATUS.md)
 

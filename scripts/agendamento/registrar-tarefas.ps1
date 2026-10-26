@@ -23,6 +23,9 @@ $tarefas = @(
   @{ Nome = "Alertas de vagas (a cada hora)"; Tarefa = "alertas";
      Gatilho = New-ScheduledTaskTrigger -Once -At (Get-Date).Date.AddHours((Get-Date).Hour + 1) -RepetitionInterval (New-TimeSpan -Hours 1);
      Descricao = "Envia aos candidatos as vagas novas que combinam com seus alertas (respeita a frequência de cada alerta)." },
+  @{ Nome = "Vagas externas (diario)"; Tarefa = "externas";
+     Gatilho = New-ScheduledTaskTrigger -Daily -At "07:00";
+     Descricao = "Importa vagas de outros sites (Adzuna, quadros do Greenhouse) e desativa as que saíram do ar." },
   @{ Nome = "Manutencao (diario)"; Tarefa = "manutencao";
      Gatilho = New-ScheduledTaskTrigger -Daily -At "03:30";
      Descricao = "Remove sessões, tokens e limites de requisição expirados." }

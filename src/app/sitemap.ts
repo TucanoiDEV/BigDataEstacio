@@ -11,8 +11,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.APP_URL ?? "http://localhost:3000";
   const now = new Date();
   const [jobs, orgs] = await Promise.all([
-    db.job.findMany({ where: publicJobWhere(now), select: { id: true, updatedAt: true }, orderBy: { publishedAt: "desc" }, take: 45000 }),
-    db.organization.findMany({ where: { verificationStatus: "VERIFIED" }, select: { slug: true, updatedAt: true }, take: 5000 }),
+    db.job.findMany({ where: { ...publicJobWhere(now), org: { verificationStatus: "VERIFIED", isDemo: false } }, select: { id: true, updatedAt: true }, orderBy: { publishedAt: "desc" }, take: 45000 }),
+    db.organization.findMany({ where: { verificationStatus: "VERIFIED", isDemo: false }, select: { slug: true, updatedAt: true }, take: 5000 }),
   ]);
   return [
     ...STATIC.map((p) => ({ url: `${base}${p}`, changeFrequency: "daily" as const })),

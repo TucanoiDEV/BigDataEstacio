@@ -19,6 +19,7 @@
     "admin:create": "tsx --conditions=react-server scripts/create-admin.ts",
     "jobs:alerts": "tsx --conditions=react-server scripts/jobs.ts alerts",
     "jobs:maintenance": "tsx --conditions=react-server scripts/jobs.ts maintenance",
+    "jobs:external": "tsx --conditions=react-server scripts/jobs.ts external",
     "postinstall": "prisma generate"
   },
   "dependencies": {

@@ -333,6 +333,8 @@ model Organization {
   logoFileId         String?               @unique
   logoFile           StoredFile?           @relation("OrgLogo", fields: [logoFileId], references: [id], onDelete: SetNull)
   verificationStatus OrgVerificationStatus @default(PENDING)
+  // Empresa fictícia do seed de demonstração: suas vagas exibem o selo "Demonstração".
+  isDemo             Boolean               @default(false)
   verificationNotes  String?
   verifiedAt         DateTime?
   verifiedById       String?
@@ -437,6 +439,47 @@ model Job {
   @@index([contractType])
   @@index([seniority])
   @@index([sector])
+}
+
+// ---------------------------------------------------------------------------
+// Vagas externas (agregadas de outros sites). Ficam FORA do fluxo de candidatura,
+// moderação e verificação: a pessoa se candidata no site de origem.
+// ---------------------------------------------------------------------------
+
+enum ExternalJobSource {
+  ADZUNA
+  GREENHOUSE
+}
+
+model ExternalJob {
+  id              String            @id @default(cuid())
+  source          ExternalJobSource
+  // Escopo da importação (ex.: "adzuna:br", "greenhouse:stone"): vagas que somem do feed são desativadas.
+  feed            String
+  externalId      String
+  title           String
+  companyName     String
+  snippet         String            @default("")
+  city            String?
+  cityNormalized  String?
+  state           String?           @db.Char(2)
+  locationLabel   String
+  workModel       WorkModel?
+  salaryMin       Int?
+  salaryMax       Int?
+  url             String
+  postedAt        DateTime
+  firstSeenAt     DateTime          @default(now())
+  lastSeenAt      DateTime          @default(now())
+  active          Boolean           @default(true)
+  // Texto normalizado (minúsculo, sem acentos) usado na busca.
+  searchText      String            @default("")
+
+  @@unique([source, externalId])
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "ExternalJob_searchText_trgm_idx")
+  @@index([active, postedAt])
+  @@index([feed, active])
+  @@index([state, cityNormalized])
 }
 
 model JobSkill {

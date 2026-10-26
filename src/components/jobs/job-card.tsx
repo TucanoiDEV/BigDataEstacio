@@ -7,12 +7,13 @@ import { formatRelative, formatSalaryRange } from "@/lib/format";
 import type { JobCardData } from "@/server/services/search";
 import { cn } from "@/lib/utils";
 
-export function JobTag({ children, tone }: { children: React.ReactNode; tone: "sky" | "violet" | "amber" | "emerald" }) {
+export function JobTag({ children, tone }: { children: React.ReactNode; tone: "sky" | "violet" | "amber" | "emerald" | "rose" }) {
   const tones = {
     sky: "bg-sky-50 text-sky-800",
     violet: "bg-violet-50 text-violet-800",
     amber: "bg-amber-50 text-amber-900",
     emerald: "bg-emerald-50 text-emerald-800",
+    rose: "bg-rose-50 text-rose-800 ring-1 ring-rose-200",
   };
   return <span className={cn("rounded-md px-2 py-0.5 text-xs font-medium", tones[tone])}>{children}</span>;
 }
@@ -39,6 +40,7 @@ export function JobCard({ job, now, saved, canSave, reasons }: { job: JobCardDat
         )}
       </div>
       <div className="mt-4 mb-4 flex flex-wrap gap-1.5">
+        {job.org.isDemo && <JobTag tone="rose">Demonstração</JobTag>}
         <JobTag tone="sky">{CONTRACT_TYPE_LABEL[job.contractType]}</JobTag>
         <JobTag tone="violet">{WORK_MODEL_LABEL[job.workModel]}</JobTag>
         <JobTag tone="amber">{SENIORITY_LABEL[job.seniority]}</JobTag>

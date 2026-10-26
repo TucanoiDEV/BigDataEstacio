@@ -73,6 +73,7 @@ async function main() {
         state: "PE",
         verificationStatus: "VERIFIED",
         verifiedAt: new Date(),
+        isDemo: true,
         members: { create: { userId: recruiter.id, role: "OWNER" } },
       },
     });

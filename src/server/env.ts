@@ -28,6 +28,12 @@ const schema = z
     CLAMAV_PORT: z.coerce.number().int().positive().default(3310),
     REQUIRE_ADMIN_MFA: boolish,
     TRUST_PROXY: boolish,
+    // Vagas externas (opcional). Sem credenciais, a fonte é ignorada.
+    ADZUNA_APP_ID: z.string().optional().default(""),
+    ADZUNA_APP_KEY: z.string().optional().default(""),
+    ADZUNA_QUERIES: z.string().optional().default(""),
+    ADZUNA_MAX_PAGES: z.coerce.number().int().min(1).max(20).default(4),
+    GREENHOUSE_BOARDS: z.string().optional().default(""),
   })
   .superRefine((env, ctx) => {
     // Exceção apenas para testes locais do build de produção (APP_URL em localhost).

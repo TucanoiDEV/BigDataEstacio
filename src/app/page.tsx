@@ -18,13 +18,13 @@ import {
 } from "lucide-react";
 import { CardListSkeleton, EmptyState } from "@/components/common/states";
 import { JobCard } from "@/components/jobs/job-card";
+import { ExternalJobCard } from "@/components/jobs/external-job-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { db } from "@/server/db";
 import { headlineBalance } from "@/server/services/observatory";
-import { jobCardSelect, trendingSectors } from "@/server/services/search";
-import { publicJobWhere } from "@/server/services/jobs";
+import { publicJobStats, searchJobs, trendingSectors } from "@/server/services/search";
 import { SECTORS, UFS, WORK_MODEL_LABEL } from "@/lib/constants";
 import { formatMonth, formatNumber, formatSigned } from "@/lib/format";
+import { parseJobSearch } from "@/lib/validation/search";
 
 const field = "h-12 w-full rounded-xl border-0 bg-white px-3 text-sm text-foreground outline-none ring-1 ring-white/20 focus-visible:ring-3 focus-visible:ring-emerald-300";
 
@@ -35,7 +35,7 @@ export default function HomePage() {
         <div className="container-page grid grid-cols-1 gap-10 py-14 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:py-20">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-emerald-200">
-              <BadgeCheck className="size-3.5" aria-hidden /> Vagas de empresas verificadas
+              <BadgeCheck className="size-3.5" aria-hidden /> Empresas verificadas e sites oficiais de carreira
             </p>
             <h1 className="mt-4 text-4xl font-extrabold leading-tight sm:text-5xl">
               Sua próxima oportunidade <span className="text-emerald-300">começa aqui</span>
@@ -89,7 +89,7 @@ export default function HomePage() {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <h2 id="recentes" className="text-2xl font-bold text-petroleum">Oportunidades recentes</h2>
-            <p className="text-sm text-muted-foreground">Publicadas por empresas verificadas e revisadas contra golpes.</p>
+            <p className="text-sm text-muted-foreground">De empresas verificadas na plataforma e dos sites de carreira das empresas.</p>
           </div>
           <Link href="/vagas" className="hidden items-center gap-1 text-sm font-semibold text-primary hover:underline sm:inline-flex">
             Ver todas <ArrowRight className="size-4" aria-hidden />
@@ -177,15 +177,11 @@ export default function HomePage() {
 async function HeroPanel() {
   await connection();
   const now = new Date();
-  const [jobs, orgs, cities] = await Promise.all([
-    db.job.count({ where: publicJobWhere(now) }),
-    db.organization.count({ where: { verificationStatus: "VERIFIED" } }),
-    db.job.groupBy({ by: ["state"], where: { ...publicJobWhere(now), state: { not: null } } }),
-  ]);
+  const jobStats = await publicJobStats(now);
   const stats = [
-    { icon: Briefcase, label: "Vagas abertas", value: formatNumber(jobs) },
-    { icon: Building2, label: "Empresas verificadas", value: formatNumber(orgs) },
-    { icon: MapPin, label: "UFs com vagas presenciais/híbridas", value: formatNumber(cities.length) },
+    { icon: Briefcase, label: "Vagas abertas", value: formatNumber(jobStats.jobs) },
+    { icon: Building2, label: "Empresas contratando", value: formatNumber(jobStats.companies) },
+    { icon: MapPin, label: "UFs com vagas presenciais/híbridas", value: formatNumber(jobStats.states) },
   ];
   return (
     <div className="rounded-3xl bg-white/10 p-6 ring-1 ring-white/15 backdrop-blur">
@@ -201,7 +197,7 @@ async function HeroPanel() {
           </li>
         ))}
       </ul>
-      <p className="mt-5 text-xs text-petroleum-foreground/70">Contagens em tempo real das vagas publicadas no Emprego Agora.</p>
+      <p className="mt-5 text-xs text-petroleum-foreground/70">Contagens em tempo real: vagas publicadas na plataforma e reunidas dos sites de carreira das empresas.</p>
     </div>
   );
 }
@@ -209,8 +205,8 @@ async function HeroPanel() {
 async function RecentJobs() {
   await connection();
   const now = new Date();
-  const jobs = await db.job.findMany({ where: publicJobWhere(now), orderBy: { publishedAt: "desc" }, take: 6, select: jobCardSelect });
-  if (!jobs.length) {
+  const { items } = await searchJobs(parseJobSearch({ ordem: "recent" }), 6);
+  if (!items.length) {
     return (
       <EmptyState
         icon={Briefcase}
@@ -222,7 +218,7 @@ async function RecentJobs() {
   }
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {jobs.map((j) => <JobCard key={j.id} job={j} now={now} />)}
+      {items.map((i) => (i.kind === "internal" ? <JobCard key={i.job.id} job={i.job} now={now} /> : <ExternalJobCard key={i.job.id} job={i.job} now={now} />))}
     </div>
   );
 }
