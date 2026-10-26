@@ -11,8 +11,8 @@ const orgProfileFields = {
   website: optionalUrl,
   contactEmail: emailSchema,
   description: optionalText(3000, "Descrição"),
-  sector: z.enum(SECTORS).nullish().transform((v) => v ?? null),
-  sizeRange: z.enum(COMPANY_SIZES).nullish().transform((v) => v ?? null),
+  sector: z.enum(SECTORS, { error: "Selecione um setor válido." }).nullish().transform((v) => v ?? null),
+  sizeRange: z.enum(COMPANY_SIZES, { error: "Selecione um porte válido." }).nullish().transform((v) => v ?? null),
   city: optionalText(80, "Cidade"),
   state: optionalUf,
 };
@@ -33,10 +33,10 @@ export type UpdateOrgInput = z.input<typeof updateOrgSchema>;
 
 export const inviteSchema = z.object({
   email: emailSchema,
-  role: z.enum(ORG_ROLES),
+  role: z.enum(ORG_ROLES, { error: "Escolha o papel." }),
 });
 
 export const changeRoleSchema = z.object({
   membershipId: z.string().min(10).max(40),
-  role: z.enum(ORG_ROLES),
+  role: z.enum(ORG_ROLES, { error: "Escolha o papel." }),
 });

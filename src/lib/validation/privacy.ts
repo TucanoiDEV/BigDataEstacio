@@ -27,7 +27,7 @@ export const PRIVACY_REQUEST_LABEL: Record<(typeof PRIVACY_REQUEST_TYPES)[number
 export const privacyRequestSchema = z.object({
   requesterName: text(2, 120, "Nome"),
   requesterEmail: emailSchema,
-  type: z.enum(PRIVACY_REQUEST_TYPES),
+  type: z.enum(PRIVACY_REQUEST_TYPES, { error: "Selecione um tipo de solicitação." }),
   description: text(10, 3000, "Descrição"),
 });
 export type PrivacyRequestInput = z.input<typeof privacyRequestSchema>;
@@ -40,6 +40,6 @@ export const deleteAccountSchema = z.object({
 export const contactSchema = z.object({
   name: text(2, 120, "Nome"),
   email: emailSchema,
-  subject: z.enum(["DUVIDA", "EMPRESA", "SEGURANCA", "IMPRENSA", "OUTRO"]),
+  subject: z.enum(["DUVIDA", "EMPRESA", "SEGURANCA", "IMPRENSA", "OUTRO"], { error: "Selecione um assunto." }),
   message: text(10, 3000, "Mensagem"),
 });

@@ -12,7 +12,7 @@ import type { AlertFilters } from "@/lib/validation/search";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Dê um nome ao alerta.").max(80),
-  frequency: z.enum(["DAILY", "WEEKLY"]),
+  frequency: z.enum(["DAILY", "WEEKLY"], { error: "Escolha a frequência." }),
   filters: z.any(),
 });
 
