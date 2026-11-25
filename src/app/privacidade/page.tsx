@@ -83,6 +83,12 @@ export default function PrivacyPolicyPage() {
           <li><strong>Empresas que você escolhe</strong>: somente o recorte confirmado na candidatura. Sua foto não é enviada; e-mail e telefone apenas se você marcar.</li>
           <li><strong>Recrutadores de empresas verificadas</strong>: somente se você ativar “perfil visível para empresas verificadas” (busca de talentos ainda não disponível; hoje o perfil só é visto nas candidaturas).</li>
           <li><strong>Operadores</strong> que nos prestam serviços: {fill(undefined, "lista de fornecedores: hospedagem, banco de dados, envio de e-mail (SMTP), antivírus, backup, monitoramento")}.</li>
+          <li>
+            <strong>Assistente de IA (opcional)</strong>: se você ativar o assistente em “Minha conta”, suas mensagens e as informações necessárias
+            para respondê-las (vagas, motivos das sugestões e status das suas candidaturas) são enviadas à Anthropic, fornecedora do modelo de IA.
+            Nome, e-mail, telefone, documentos e currículos não são enviados, e as conversas não ficam salvas na plataforma. Você pode desativar o
+            assistente a qualquer momento.
+          </li>
           <li><strong>Autoridades</strong>, quando houver obrigação legal ou ordem judicial.</li>
         </ul>
         <p>Não vendemos dados pessoais.</p>
@@ -134,7 +140,10 @@ export default function PrivacyPolicyPage() {
       </LegalSection>
 
       <LegalSection id="transferencia" title="10. Transferência internacional">
-        <p>{fill(undefined, "informar se fornecedores armazenam dados fora do Brasil, países envolvidos e mecanismo do art. 33 da LGPD (ex.: cláusulas-padrão contratuais)")}</p>
+        <p>
+          O assistente de IA, quando ativado por você, é processado pela Anthropic, nos Estados Unidos.{" "}
+          {fill(undefined, "informar se outros fornecedores armazenam dados fora do Brasil, países envolvidos e mecanismo do art. 33 da LGPD (ex.: cláusulas-padrão contratuais)")}
+        </p>
       </LegalSection>
 
       <LegalSection id="menores" title="11. Crianças e adolescentes">

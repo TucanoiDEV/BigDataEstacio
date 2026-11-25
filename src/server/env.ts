@@ -34,6 +34,12 @@ const schema = z
     ADZUNA_QUERIES: z.string().optional().default(""),
     ADZUNA_MAX_PAGES: z.coerce.number().int().min(1).max(20).default(4),
     GREENHOUSE_BOARDS: z.string().optional().default(""),
+    // Assistente de IA para candidatos (opcional). Sem chave, o assistente fica indisponível.
+    ANTHROPIC_API_KEY: z.string().optional().default(""),
+    ASSISTANT_MODEL: z
+      .string()
+      .optional()
+      .transform((v) => v?.trim() || "claude-haiku-5-5"),
   })
   .superRefine((env, ctx) => {
     // Exceção apenas para testes locais do build de produção (APP_URL em localhost).

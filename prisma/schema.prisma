@@ -612,6 +612,7 @@ enum ConsentKind {
   TERMS_OF_USE
   PRIVACY_NOTICE
   PRODUCT_NEWS
+  AI_ASSISTANT
 }
 
 model ConsentRecord {
