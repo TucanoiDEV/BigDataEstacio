@@ -12,6 +12,7 @@ import * as profile from "@/server/services/profile";
 import * as applications from "@/server/services/applications";
 import * as saved from "@/server/services/saved-and-alerts";
 import * as privacy from "@/server/services/privacy";
+import * as assistant from "@/server/services/assistant";
 import { markAllRead } from "@/server/services/notifications";
 import { db } from "@/server/db";
 import { idSchema, optionalText } from "@/lib/validation/common";
@@ -212,4 +213,15 @@ export const revokeSessionAction = createAction(z.object({ sessionId: z.string()
   await db.session.deleteMany({ where: { id: sessionId, userId: user.id } });
   revalidatePath("/minha-conta/seguranca");
   return { ok: true, message: "Sessão encerrada." };
+});
+
+// ---------------------------------------------------------------------------
+// Assistente de IA (consentimento explícito e revogável)
+// ---------------------------------------------------------------------------
+
+export const setAssistantConsentAction = createAction(z.object({ grant: z.boolean() }), async ({ grant }) => {
+  const user = await assertUser();
+  const ctx = await getRequestContext();
+  await assistant.setAssistantConsent(user.id, grant, ctx.ipHash);
+  revalidatePath("/minha-conta/assistente");
 });

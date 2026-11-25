@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ConsentProvider } from "@/components/consent/consent-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { AssistantWidget } from "@/components/candidate/assistant-widget";
 import "./globals.css";
 
 const body = Inter({ variable: "--font-body", subsets: ["latin"], display: "swap" });
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               {children}
             </main>
             <SiteFooter />
+            <AssistantWidget />
             <Toaster position="top-center" closeButton />
           </ConsentProvider>
         </TooltipProvider>
